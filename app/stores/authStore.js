@@ -124,6 +124,35 @@ export const useAuthStore = create(
         }
       },
 
+      telegramLogin: async (data) => {
+        set({ loading: true, error: null });
+    
+        try {
+            // Telegram widget sends user data to backend callback endpoint
+            const res = await request('/auth/telegram/callback', 'POST', data);
+    
+            // Extract user and JWT token from backend response
+            const { user, token } = res;
+    
+            // Update store state
+            set({ user, token });
+    
+            // Optionally: save token to localStorage or cookies for persistence
+            localStorage.setItem('token', token);
+    
+            return res;
+        } catch (err) {
+            // Handle errors (hash verification, expired auth_date, etc.)
+            const msg = err?.response?.data?.error || err.message || 'Telegram login failed';
+            set({ error: msg });
+            throw new Error(msg);
+        } finally {
+            set({ loading: false });
+        }
+    },
+    
+        
+
       // ------------------------------
       // Logout
       // ------------------------------

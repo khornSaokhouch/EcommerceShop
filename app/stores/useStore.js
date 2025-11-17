@@ -1,17 +1,18 @@
 import { create } from "zustand";
-import { request } from "../util/request"; // your existing request helper
+import { request } from "../util/request";
+import { useAuthStore } from "./authStore"; // import auth store
 
 export const useStore = create((set) => ({
   stores: [],
   loading: false,
   error: null,
 
+  // Fetch all stores or by userId
   fetchStores: async (userId) => {
     set({ loading: true, error: null });
     try {
-      const url = userId ? `/stores?userId=${userId}` : "/stores"; // ✅ Optional filtering
+      const url = userId ? `/stores?user_id=${userId}` : "/stores";
       const res = await request(url, "GET");
-  
       set({
         stores: Array.isArray(res) ? res : [],
         loading: false,
@@ -19,26 +20,30 @@ export const useStore = create((set) => ({
       });
     } catch (err) {
       set({
-        error: "Failed to fetch stores",
+        error: err.message || "Failed to fetch stores",
         loading: false,
         stores: [],
       });
     }
   },
-  
 
-  // NEW: fetch stores by user ID
   fetchStoresByUserId: async (userId) => {
     set({ loading: true, error: null });
     try {
-      const res = await request(`/stores/user/${userId}`, 'GET');
-      set({ stores: Array.isArray(res) ? res : [], loading: false, error: null });
+      const res = await request(`/stores/user/${userId}`, "GET");
+      set({
+        stores: Array.isArray(res) ? res : [],
+        loading: false,
+        error: null,
+      });
     } catch (err) {
-      set({ error: err.message || 'Failed to fetch stores', loading: false, stores: [] });
+      set({
+        error: err.message || "Failed to fetch stores by user",
+        loading: false,
+        stores: [],
+      });
     }
   },
-  
-  
 
   getStoreById: async (id) => {
     try {
@@ -52,33 +57,39 @@ export const useStore = create((set) => ({
 
   createStore: async (data) => {
     try {
-      const newStore = await request("/stores", "POST", data);
-      if (!newStore || !newStore.id) {
-        throw new Error("Invalid response from server on create.");
+      if (!data.name) {
+        throw new Error("Missing required field: name");
       }
+  
+      const newStore = await request("/stores", "POST", data);
+  
       set((state) => ({
         stores: [...state.stores, newStore],
         error: null,
       }));
+  
       return newStore;
     } catch (err) {
       console.error("Failed to create store:", err);
       throw err;
     }
   },
-
+  
   updateStore: async (id, data) => {
     try {
       const updatedStore = await request(`/stores/${id}`, "PUT", data);
+
       if (!updatedStore || !updatedStore.id) {
-        throw new Error("Invalid response from server on update.");
+        throw new Error("Invalid response from server on update");
       }
+
       set((state) => ({
         stores: state.stores.map((store) =>
           store.id === id ? updatedStore : store
         ),
         error: null,
       }));
+
       return updatedStore;
     } catch (err) {
       console.error("Failed to update store:", err);

@@ -46,9 +46,9 @@ const mainLinks = [
   { href: "category", label: "Categories", icon: Tag, key: "category" },
   { href: "events", label: "Events", icon: Store, key: "events" },
   { href: "products", label: "Products", icon: Package, key: "products" },
-  { href: "paymenttype", label: "Payment Types", icon: CreditCard, key: "payment" },
-  { href: "orderstatus", label: "Order Status", icon: ShoppingCart, key: "status" },
-  { href: "shippingmethod", label: "Shipping", icon: Truck, key: "shipping" },
+  { href: "payment-type", label: "Payment Types", icon: CreditCard, key: "payment" },
+  { href: "order-status", label: "Order Status", icon: ShoppingCart, key: "status" },
+  // { href: "shippingmethod", label: "Shipping", icon: Truck, key: "shipping" },
   { href: "order-lines", label: "Order Lines", icon: ListOrdered, key: "orders" },
 ]
 

@@ -135,62 +135,64 @@ export default function EventManager() {
                 {/* REMOVE WHITESPACE HERE */}
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {events.map((event) => (
-                  <tr key={event.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {event.id}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {event.name
-                      ? event.name.length > 20
-                        ? `${event.name.substring(0, 20)}...`
-                        : event.name
-                      : "-"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700 max-w-xs">
-                      {event.description
-                        ? event.description.length > 30
-                          ? `${event.description.substring(0, 30)}...`
-                          : event.description
-                        : "-"}
-                    </td>
+  {events.map((event, index) => (
+    <tr key={event.id} className="hover:bg-gray-50">
+      {/* Replace event.id with index + 1 */}
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+        {index + 1}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+        {event.name
+          ? event.name.length > 20
+            ? `${event.name.substring(0, 20)}...`
+            : event.name
+          : "-"}
+      </td>
+      <td className="px-6 py-4 text-sm text-gray-700 max-w-xs">
+        {event.description
+          ? event.description.length > 30
+            ? `${event.description.substring(0, 30)}...`
+            : event.description
+          : "-"}
+      </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {event.start_date.split("T")[0]}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {event.end_date ? event.end_date.split("T")[0] : "-"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {event.event_image_url ? (
-                        <img
-                          src={event.event_image_url}
-                          alt={event.name}
-                          className="h-10 w-10 object-cover rounded-full border border-gray-200"
-                        />
-                      ) : (
-                        <span className="text-gray-400 text-sm">No Image</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                      <button
-                        onClick={() => handleOpenEventModal(event)}
-                        className="text-indigo-600 hover:text-indigo-900 mr-4 transition-colors duration-200"
-                        title="Edit Event"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleOpenDeleteModal(event.id)}
-                        className="text-red-600 hover:text-red-900 transition-colors duration-200"
-                        title="Delete Event"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+        {event.start_date.split("T")[0]}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+        {event.end_date ? event.end_date.split("T")[0] : "-"}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        {event.event_image_url ? (
+          <img
+            src={event.event_image_url}
+            alt={event.name}
+            className="h-10 w-10 object-cover rounded-full border border-gray-200"
+          />
+        ) : (
+          <span className="text-gray-400 text-sm">No Image</span>
+        )}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+        <button
+          onClick={() => handleOpenEventModal(event)}
+          className="text-indigo-600 hover:text-indigo-900 mr-4 transition-colors duration-200"
+          title="Edit Event"
+        >
+          Edit
+        </button>
+        <button
+          onClick={() => handleOpenDeleteModal(event.id)}
+          className="text-red-600 hover:text-red-900 transition-colors duration-200"
+          title="Delete Event"
+        >
+          Delete
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
             </table>
           </div>
         )}

@@ -1,262 +1,114 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useUserStore } from '../../stores/userStore';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Camera, User, Mail, Phone, Loader2 } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useEffect, useState } from "react";
+import LeftProfile from "../../components/company/LeftProfile";
+import RightForm from "../../components/company/RightForm";
 
-/* ✅ Reusable Confirmation Modal */
-const ConfirmationModal = ({ isOpen, onClose, onConfirm, isSubmitting }) => {
-  if (!isOpen) return null;
+import { useCompanyInfoStore } from "../../stores/useCompanyInfoStore";
+import { useUserStore } from "../../stores/userStore";
+import { toast } from "react-hot-toast";
 
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center">
-      <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm mx-4 transform transition-all duration-300 scale-100 animate-in fade-in slide-in-from-bottom">
-        <h2 className="text-lg font-bold text-gray-800">Confirm Changes</h2>
-        <p className="text-sm text-gray-600 mt-2 mb-6">
-          Are you sure you want to save these changes to your profile?
-        </p>
-        <div className="flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={isSubmitting}
-            className="flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-indigo-500 rounded-md hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Yes, Save'}
-          </button>
-        </div>
-      </div>
-    </div>
+export default function CompanyProfilePage() {
+  const { user, fetchUser, updateUser } = useUserStore();
+  const userId = user?.id;
+
+  const company = useCompanyInfoStore((state) => state.company);
+  const loading = useCompanyInfoStore((state) => state.loading);
+  const createCompany = useCompanyInfoStore((state) => state.createCompany);
+  const updateCompany = useCompanyInfoStore((state) => state.updateCompany);
+  const setFieldValue = useCompanyInfoStore((state) => state.setFieldValue);
+  const fetchCompanyByUserId = useCompanyInfoStore(
+    (state) => state.fetchCompanyByUserId
   );
-};
 
-export default function EditProfilePage() {
-  const router = useRouter();
-  const { user, loading, fetchUser, updateUser } = useUserStore();
+  const [updating, setUpdating] = useState(false);
+  const isNew = !company?.id;
 
-  const [formData, setFormData] = useState({ name: '', phone_number: '', image: null });
-  const [imagePreview, setImagePreview] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // ✅ Fetch logged-in user
+  // Load logged-in user
   useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
+    if (!user) fetchUser();
+  }, [user, fetchUser]);
 
-  // ✅ Populate form data
+  // Fetch company after user loads
   useEffect(() => {
-    if (user) {
-      setFormData({
-        name: user.name ?? '',
-        phone_number: user.phone_number ?? '',
-        image: null,
-      });
-    }
-  }, [user]);
+    if (!userId) return;
+    fetchCompanyByUserId(userId);
+  }, [userId]);
 
-  const getUserInitial = (name) => name?.charAt(0)?.toUpperCase() || 'U';
+  // Input handler
+  const handleInputChange = (e) => {
+    const { name, type, value, files } = e.target;
 
-  const getCleanImageUrl = (url) => {
-    if (!url) return null;
-    const lastHttpIndex = url.lastIndexOf('http');
-    return lastHttpIndex > 0 ? url.substring(lastHttpIndex) : url;
-  };
-
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === 'image' && files && files[0]) {
-      const file = files[0];
-      setFormData((prev) => ({ ...prev, image: file }));
-      setImagePreview(URL.createObjectURL(file));
+    if (type === "file") {
+      const file = files?.[0] ?? null;
+      setFieldValue(name, file);
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      setFieldValue(name, value);
     }
   };
 
-  const handleFormSubmit = (e) => {
+  // Save company info
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsModalOpen(true);
+
+    setUpdating(true);
+    try {
+      if (isNew) {
+        await createCompany(company);
+        toast.success("Company created successfully!");
+      } else {
+        await updateCompany(company.id, company);
+        toast.success("Company updated successfully!");
+      }
+    } catch (err) {
+      toast.error(err.message || "Failed to save company");
+    } finally {
+      setUpdating(false);
+    }
   };
 
-  const handleConfirmUpdate = async () => {
-    if (isSubmitting) return;
-    setIsSubmitting(true);
+  // Save user profile (name + image)
+  const handleSaveProfile = async ({ name, imageFile }) => {
+    if (!userId) {
+      toast.error("User not loaded");
+      return;
+    }
 
-    const loadingToast = toast.loading('Updating profile...');
+    setUpdating(true);
 
     try {
-      const data = new FormData();
-      data.append('name', formData.name);
-      data.append('phone_number', String(formData.phone_number ?? ''));
-      if (formData.image) data.append('image', formData.image);
+      const formData = new FormData();
+      formData.append("name", name);
+      if (imageFile) formData.append("image", imageFile);
 
-      await updateUser(data);
-      toast.success('Profile updated successfully!', { id: loadingToast });
-      setIsModalOpen(false);
+      await updateUser(formData);
+      toast.success("Profile updated");
+
+      fetchUser();
     } catch (err) {
-      toast.error(err.message || 'Failed to update profile.', { id: loadingToast });
+      toast.error(err.message || "Update failed");
     } finally {
-      setIsSubmitting(false);
+      setUpdating(false);
     }
   };
 
-  if (loading || !user) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-white">
-        <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
-      </div>
-    );
-  }
-
-  const currentImageUrl = getCleanImageUrl(user?.profile_image_url);
-  const userInitial = getUserInitial(user?.name);
-
   return (
-    <>
-      <ConfirmationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={handleConfirmUpdate}
-        isSubmitting={isSubmitting}
-      />
+    <form onSubmit={handleSubmit} className="min-h-screen  p-6 sm:p-10">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8 border-b border-indigo-100 pb-4">
+          {isNew ? "Add New Company Profile" : "Edit Company Profile"}
+        </h1>
 
-      <div className="min-h-screen bg-gray-50 flex justify-center py-12 px-4">
-        <div className="w-full max-w-2xl bg-white p-8 rounded-2xl shadow-lg space-y-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Edit Profile</h1>
-            <p className="text-gray-500">
-              Make changes to your personal details and save them securely.
-            </p>
-          </div>
-
-          <form onSubmit={handleFormSubmit} className="space-y-6">
-            {/* Profile Photo */}
-            <div className="p-6 border rounded-xl bg-gray-50">
-              <h3 className="font-semibold text-gray-800 mb-4">Profile Photo</h3>
-              <div className="flex items-center gap-5">
-                <div className="relative w-24 h-24">
-                  {imagePreview || currentImageUrl ? (
-                    <Image
-                      src={imagePreview || currentImageUrl}
-                      alt="Profile Preview"
-                      width={96}
-                      height={96}
-                      className="w-24 h-24 rounded-full object-cover bg-gray-200"
-                    />
-                  ) : (
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-r from-indigo-500 to-sky-500 text-white flex items-center justify-center font-semibold text-2xl">
-                      {userInitial}
-                    </div>
-                  )}
-                  <label
-                    htmlFor="image-upload"
-                    className="absolute -bottom-1 -right-1 flex items-center justify-center w-8 h-8 bg-gradient-to-r from-sky-500 to-indigo-500 rounded-full text-white cursor-pointer hover:opacity-90 transition"
-                  >
-                    <Camera className="w-4 h-4" />
-                    <input
-                      id="image-upload"
-                      type="file"
-                      name="image"
-                      accept="image/*"
-                      onChange={handleChange}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Upload a new photo. A clear, professional image is recommended.
-                </p>
-              </div>
-            </div>
-
-            {/* Account Details */}
-            <div className="p-6 border rounded-xl bg-gray-50 space-y-4">
-              <h3 className="font-semibold text-gray-800 mb-4">Account Details</h3>
-
-              {/* Name */}
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full py-2 pl-10 pr-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                  />
-                </div>
-              </div>
-
-              {/* Phone Number */}
-              <div>
-                <label htmlFor="phone_number" className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    id="phone_number"
-                    name="phone_number"
-                    value={formData.phone_number}
-                    onChange={handleChange}
-                    placeholder="Enter your phone number"
-                    className="w-full py-2 pl-10 pr-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                  />
-                </div>
-              </div>
-
-              {/* Email (read-only) */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="email"
-                    id="email"
-                    value={user.email}
-                    disabled
-                    className="w-full py-2 pl-10 pr-3 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-end gap-4 pt-4">
-              <Link
-                href="/profile"
-                className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition"
-              >
-                Cancel
-              </Link>
-              <button
-                type="submit"
-                className="flex items-center justify-center px-5 py-2 text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-indigo-500 rounded-md hover:opacity-90 transition"
-              >
-                Save Changes
-              </button>
-            </div>
-          </form>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          <LeftProfile user={user} onSaveProfile={handleSaveProfile} updating={updating} />
+          <RightForm
+            companyData={company}
+            handleInputChange={handleInputChange}
+            loading={loading}
+            isNew={isNew}
+          />
         </div>
       </div>
-    </>
+    </form>
   );
 }

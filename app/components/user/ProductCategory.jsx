@@ -1,194 +1,193 @@
-'use client';
+"use client";
+import React, { useEffect } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Pagination, Navigation, EffectFade } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+import "swiper/css/effect-fade";
+import { useEventStore } from "../../stores/useEventStore";
+import Link from "next/link"; // ✅ correct import for Next.js links
 
-import React, { useEffect, useMemo } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { useCategoryStore } from '../../stores/useCategoryStore';
-import { useEventStore } from '../../stores/useEventStore';
-import { useUserStore } from '../../stores/userStore';
-import Image from 'next/image';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-const EventCategory = () => {
-  // 1. Get the category ID from the URL parameters
-  const params = useParams();
-  const routeCategoryId = params.categoryId;
+const slugify = (text) => {
+  if (!text) return "untitled";
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]+/g, "")
+    .replace(/\-\-+/g, "-");
+};
 
-  const userId = useUserStore((state) => state.user?.id);
-  const { categories, fetchCategories } = useCategoryStore();
-  const { events, fetchEvents } = useEventStore();
-  const router = useRouter();
+export default function EventsCarousel() {
+  const eventStore = useEventStore();
 
-  // Fetch data on mount
   useEffect(() => {
-    fetchCategories();
-    fetchEvents();
-  }, [fetchCategories, fetchEvents]);
+    eventStore.fetchEvents();
+  }, []);
 
-  // 2. Filter events based on the URL's category ID
-  const filteredEvents = useMemo(() => {
-    if (!routeCategoryId) {
-      return events;
-    }
+  // console.log("Events:", eventStore.events);
+  
 
-    return events.filter(
-      (event) => String(event.category_id) === routeCategoryId
-    );
-  }, [events, routeCategoryId]);
-
-  // 3. Get the active category object for the title/display
-  const activeCategory = useMemo(() => {
-    return categories.find((cat) => String(cat.id) === routeCategoryId);
-  }, [categories, routeCategoryId]);
-
-  // 4. Handle category click for navigation
-  const handleCategoryClick = (categoryId) => {
-    if (userId) {
-      router.push(`/user/${userId}/category/${categoryId}`);
-    } else {
-      router.push(`/category/${categoryId}`);
-    }
-  };
-
-  // 5. Handle event click
-  const handleEventClick = (eventId) => {
-    router.push(`/event/${eventId}`);
-  };
-
-  // Display loading state
-  if (!categories.length || !events.length) {
+  if (eventStore.loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen text-gray-600">
-        Loading categories and events...
+      <div className="w-full relative shadow-xl rounded-2xl py-8 flex items-center justify-center h-[400px]">
+        <div className="flex flex-col items-center space-y-6">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent"></div>
+          <p className="text-slate-600 font-medium text-lg">Loading events...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (eventStore.error) {
+    return (
+      <div className="w-full relative shadow-xl rounded-2xl py-8 flex items-center justify-center h-[400px] bg-white/80 backdrop-blur-sm border border-blue-100 mx-4">
+        <div className="text-center space-y-4">
+          <svg
+            className="w-20 h-20 mx-auto text-blue-300"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.5"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <p className="text-slate-700 font-semibold text-lg">{eventStore.error}</p>
+          <button
+            onClick={eventStore.fetchEvents}
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 font-semibold"
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col md:flex-row bg-gray-50 min-h-screen p-4">
-      {/* 🔵 Left: Categories 🔵 */}
-      <div className="w-full md:w-1/5 bg-white rounded-3xl p-4 shadow-xl flex-shrink-0 mb-6 md:mb-0">
-        <h2 className="text-xl font-extrabold mb-4 text-gray-800 border-b pb-2">
-          Categories
-        </h2>
-        <ul>
-          {categories.map((category) => (
-            <li
-              key={category.id}
-              className={`py-2 px-3 rounded-lg cursor-pointer transition-all duration-200 text-sm
-                ${
-                  String(category.id) === routeCategoryId
-                    ? 'bg-red-500 text-white font-bold shadow-md'
-                    : 'hover:bg-red-50 hover:text-blue-600 text-gray-700'
-                }`}
-              onClick={() => handleCategoryClick(category.id)}
-            >
-              {category.name}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* 🔵 Middle: Banner + Mini Cards (Using filteredEvents) 🔵 */}
-      <div className="w-full md:w-3/5 flex flex-col gap-6 ml-0 md:ml-6 mt-6 md:mt-0">
-        {/* Main Banner Event */}
-        {filteredEvents[0] && (
-          <div
-            className="bg-gray-200 relative rounded-3xl overflow-hidden shadow-md mb-1 cursor-pointer"
-            onClick={() => handleEventClick(filteredEvents[0].id)}
-          >
-            <div className="relative h-102">
-              <Image
-                src={filteredEvents[0].event_image_url || '/placeholder.jpg'}
-                alt={filteredEvents[0].name}
-                fill
-                style={{ objectFit: 'cover' }}
-                className="absolute inset-0 opacity-50"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-gray-900 to-transparent"></div>
-            </div>
-            <div className="absolute top-0 left-0 p-8 z-10 text-left w-1/2">
-              <h2 className="text-6xl font-bold text-white mb-2">
-                {filteredEvents[0].name}
-              </h2>
-              <p className="text-white text-lg mb-14 line-clamp-2">
-                {filteredEvents[0].description}
-              </p>
-              <button className="bg-white text-black font-semibold py-4 px-8 rounded-xl hover:bg-gray-300">
-                View Event
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Mini Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredEvents.slice(1, 3).map((event) => (
-            <div
+    <div className="w-full relative shadow-xl rounded-2xl py-8">
+      <div className="container mx-auto px-4">
+        <Swiper
+          modules={[Autoplay, Pagination, Navigation, EffectFade]}
+          slidesPerView={1}
+          loop={true}
+          autoplay={{ delay: 5000, disableOnInteraction: false }}
+          effect="fade"
+          fadeEffect={{ crossFade: true }}
+          pagination={{ clickable: true }}
+          navigation={{
+            nextEl: ".swiper-button-next-custom",
+            prevEl: ".swiper-button-prev-custom",
+          }}
+          className="enhanced-swiper"
+        >
+          {eventStore.events.map((event) => (
+            <SwiperSlide
               key={event.id}
-              className="bg-white rounded-3xl overflow-hidden shadow-md flex flex-col cursor-pointer"
-              onClick={() => handleEventClick(event.id)}
+              className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl shadow-blue-500/10 overflow-hidden border border-blue-100 w-[90%] mx-auto"
             >
-              <div className="relative h-52 rounded-t-3xl">
-                <Image
-                  src={event.event_image_url || '/placeholder.jpg'}
-                  alt={event.name}
-                  fill
-                  style={{ objectFit: 'cover' }}
-                  className="absolute inset-0"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-gray-900 to-transparent"></div>
+              <div className="flex flex-col md:flex-row items-center h-[450px]">
+                {/* Text Section */}
+                <div className="w-full md:w-2/5 p-6 lg:p-12 order-2 md:order-1 relative h-full flex flex-col justify-center">
+                  <div className="slide-content relative z-10 space-y-4">
+                    <div className="slide-badge inline-block bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 text-xs font-semibold px-3 py-1.5 rounded-full uppercase tracking-wider border border-blue-200">
+                      Upcoming Event
+                    </div>
+                    <h2 className="slide-title text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent leading-tight">
+                      {event.name}
+                    </h2>
+                    {event.description && (
+                      <p className="slide-desc text-slate-600 text-base md:text-lg leading-relaxed line-clamp-3">
+                        {event.description}
+                      </p>
+                    )}
 
-                {/* ✅ Bottom-left text */}
-                <div className="absolute bottom-4 left-4 text-left px-4 text-white">
-                  <h3 className="text-lg font-semibold">{event.name}</h3>
-                  <p className="text-sm mt-1">
-                    {new Date(event.start_date).toLocaleDateString()}
-                  </p>
-                  <button className="text-sm mt-2 font-semibold underline hover:text-gray-300">
-                    VIEW EVENT
-                  </button>
+                    <div className="slide-actions flex items-center space-x-4 pt-2">
+                      <Link
+                        href={`/event/${slugify(event?.name)}`}
+                        className="group/btn inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 text-sm"
+                      >
+                        <span>Learn More</span>
+                        <svg
+                          className="w-4 h-4 ml-2 transform group-hover/btn:translate-x-1 transition-transform"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M17 8l4 4m0 0l-4 4m4-4H3"
+                          />
+                        </svg>
+                      </Link>
+
+                      <div className="flex items-center space-x-2">
+                        <button className="swiper-button-prev-custom nav-button">
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M15 19l-7-7 7-7"
+                            />
+                          </svg>
+                        </button>
+                        <button className="swiper-button-next-custom nav-button">
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Image Section */}
+                <div className="w-full md:w-3/5 h-[300px] md:h-full order-1 md:order-2 relative">
+                <div
+  className="w-full h-full rounded-2xl md:rounded-r-3xl md:rounded-l-none bg-cover bg-center shadow-xl relative overflow-hidden"
+  style={{
+    backgroundImage: event.event_image_url
+      ? `url(${event.event_image_url})`
+      : "linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)",
+  }}
+>
+  <div className="absolute inset-0 bg-gradient-to-t from-blue-900/30 via-transparent to-blue-900/10"></div>
+  <div className="absolute top-4 right-4 w-20 h-20 bg-white/10 backdrop-blur-sm rounded-full border border-white/20"></div>
+  <div className="absolute bottom-6 left-6 w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full border border-white/20"></div>
+</div>
+
                 </div>
               </div>
-            </div>
+            </SwiperSlide>
           ))}
-        </div>
-      </div>
-
-      {/* 🔵 Right Column 🔵 */}
-      <div className="w-full md:w-1/5 flex flex-col gap-6 ml-0 md:ml-6 mt-6 md:mt-0">
-        <div className="grid grid-cols-1 gap-6">
-          {filteredEvents.slice(3, 5).map((event) => (
-            <div
-              key={event.id}
-              className="bg-white rounded-3xl overflow-hidden shadow-md flex flex-col cursor-pointer"
-              onClick={() => handleEventClick(event.id)}
-            >
-              <div
-                className="relative h-78 rounded-t-3xl bg-cover bg-center"
-                style={{
-                  backgroundImage: `url(${
-                    event.event_image_url || '/placeholder.jpg'
-                  })`,
-                }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-gray-900 to-transparent"></div>
-
-                {/* ✅ Bottom-left text */}
-                <div className="absolute bottom-4 left-4 text-left px-4 text-white">
-                  <h3 className="text-lg font-semibold">{event.name}</h3>
-                  <p className="text-sm mt-1">
-                    {new Date(event.start_date).toLocaleDateString()}
-                  </p>
-                  <button className="mt-2 bg-white text-black font-semibold py-1 px-4 rounded hover:bg-gray-300">
-                    VIEW EVENT
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        </Swiper>
       </div>
     </div>
   );
-};
-
-export default EventCategory;
+}

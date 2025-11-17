@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bell, MessageSquare, Menu, Settings, LogOut } from 'lucide-react';
+import { Bell, MessageSquare, Menu, Settings, LogOut, User } from 'lucide-react';
 import { useChatStore } from '../../stores/useChatStore';
 // import { useAuthStore } from '../stores/authStore';
 
@@ -118,37 +118,55 @@ export default function Navbar({ user, loadingUser, onMenuButtonClick, onLogoutC
               </button>
 
               <AnimatePresence>
-                {dropdownOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute right-0 mt-2 w-56 origin-top-right bg-white rounded-md shadow-lg z-20 overflow-hidden ring-1 ring-slate-900/5"
-                    onMouseLeave={() => setDropdownOpen(false)}
-                  >
-                    <div className="p-2">
-                      <div className="px-2 py-2 text-left">
-                        <p className="text-sm font-semibold text-slate-800">{user?.name || 'User'}</p>
-                        <p className="text-xs text-slate-500 truncate">{user?.email}</p>
-                      </div>
-                      <div className="h-px bg-slate-200 my-1" />
-                      <Link
-                        href={profileLink}
-                        className="flex items-center gap-3 w-full px-2 py-2 text-sm text-slate-700 rounded-md hover:bg-slate-100"
-                      >
-                        <Settings className="w-5 h-5" /> Settings & Profile
-                      </Link>
-                      <button
-                        onClick={onLogoutClick}
-                        className="flex items-center gap-3 w-full px-2 py-2 text-sm text-red-600 rounded-md hover:bg-red-50"
-                      >
-                        <LogOut className="w-5 h-5" /> Logout
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+  {dropdownOpen && (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95, y: -10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95, y: -10 }}
+      transition={{ duration: 0.15 }}
+      className="absolute right-0 mt-2 w-56 origin-top-right bg-white rounded-md shadow-lg z-20 overflow-hidden ring-1 ring-slate-900/5"
+      onMouseLeave={() => setDropdownOpen(false)}
+    >
+      <div className="p-2">
+        <div className="px-2 py-2 text-left">
+          <p className="text-sm font-semibold text-slate-800">{user?.name || 'User'}</p>
+          <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+        </div>
+        <div className="h-px bg-slate-200 my-1" />
+
+        {/* Existing buttons */}
+        <Link
+          href={profileLink}
+          className="flex items-center gap-3 w-full px-2 py-2 text-sm text-slate-700 rounded-md hover:bg-slate-100"
+        >
+          <User className="w-5 h-5" />Company Profile
+        </Link>
+
+        <Link
+           href="/company/edit-profile"
+          className="flex items-center gap-3 w-full px-2 py-2 text-sm text-slate-700 rounded-md hover:bg-slate-100"
+        >
+          <Settings className="w-5 h-5" /> Edit Profile Company
+        </Link>
+
+        <Link
+          href="/company/support"
+          className="flex items-center gap-3 w-full px-2 py-2 text-sm text-slate-700 rounded-md hover:bg-slate-100"
+        >
+          <Bell className="w-5 h-5" /> Support
+        </Link>
+
+        <button
+          onClick={onLogoutClick}
+          className="flex items-center gap-3 w-full px-2 py-2 text-sm text-red-600 rounded-md hover:bg-red-50"
+        >
+          <LogOut className="w-5 h-5" /> Logout
+        </button>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
+
             </div>
           </div>
         </div>

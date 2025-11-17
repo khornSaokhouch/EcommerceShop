@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { request } from '../util/request'; // Your API request util
+import { request } from '../util/request';
+import { useAuthStore } from './authStore';
 
 export const useProductStore = create((set) => ({
   products: [],
@@ -7,75 +8,65 @@ export const useProductStore = create((set) => ({
   loading: false,
   error: null,
 
+  // Fetch all products
   fetchProducts: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await request('/products', 'GET', null, false);
-      // No res.products or res.data — just the array itself
+      const res = await request('/products', 'GET'); // token auto-included
       set({ products: res || [], loading: false });
     } catch (err) {
-      set({ error: err.message || 'Failed to fetch products', loading: false });
+      set({ error: err.response?.data?.message || err.message || 'Failed to fetch products', loading: false });
     }
   },
 
-
-
-
+  // Fetch all products (alias)
   fetchAllProducts: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await request('/products', 'GET');
+      const res = await request('/products', 'GET'); // token auto-included
       set({ products: res, loading: false });
     } catch (err) {
-      set({
-        error: err.response?.data?.message || err.message || 'Failed to fetch products',
-        loading: false,
-      });
+      set({ error: err.response?.data?.message || err.message || 'Failed to fetch products', loading: false });
     }
   },
-  
 
-  fetchCategoryById: async (categoryId) => {
-    try {
-      const data = await request(`/categories/${categoryId}`, 'GET');
-      return data; // assuming data contains category info including `name`
-    } catch (e) {
-      console.error('Failed to fetch category:', e);
-      return null;
-    }
-  },
-  
-
-  fetchProductsByCategory: async (categoryId) => {
-    set({ loading: true, error: null });
-    try {
-      const data = await request(`/categories/${categoryId}/products`, 'GET');
-      set({ products: data, loading: false });
-    } catch (e) {
-      set({
-        error: e?.response?.data?.message || e.message || 'Failed to fetch products',
-        loading: false,
-      });
-    }
-  },
-  
-
-
+  // Fetch a single product
   fetchProduct: async (id) => {
     set({ loading: true, error: null });
     try {
       const res = await request(`/products/${id}`, 'GET');
-      set({ product: res, loading: false }); // Use `res` or `res.data` depending on your request() utility
+      set({ product: res, loading: false });
     } catch (err) {
-      set({ error: err.message || 'Failed to fetch product', loading: false });
+      set({ error: err.response?.data?.message || err.message || 'Failed to fetch product', loading: false });
     }
   },
-  
-  
+
+  // Fetch products by category
+  fetchProductsByCategory: async (categoryId) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await request(`/categories/${categoryId}/products`, 'GET');
+      set({ products: res, loading: false });
+    } catch (err) {
+      set({ error: err.response?.data?.message || err.message || 'Failed to fetch products', loading: false });
+    }
+  },
+
+  // Fetch a category by ID
+  fetchCategoryById: async (categoryId) => {
+    try {
+      const data = await request(`/categories/${categoryId}`, 'GET');
+      return data;
+    } catch (err) {
+      console.error('Failed to fetch category:', err);
+      return null;
+    }
+  },
+
+  // Create a product
   createProduct: async (data) => {
     set({ loading: true, error: null });
     try {
-      // if product_image is a file, send as FormData
       const formData = new FormData();
       for (const key in data) {
         if (data[key] !== null && data[key] !== undefined) {
@@ -83,49 +74,40 @@ export const useProductStore = create((set) => ({
         }
       }
 
-      const res = await request('/products', 'POST', formData, {
-        // headers are handled automatically for FormData
-      });
-
-      set((state) => ({
-        products: [...state.products, res.product],
-        loading: false,
-      }));
+      const res = await request('/products', 'POST', formData);
+      set((state) => ({ products: [...state.products, res.product], loading: false }));
     } catch (err) {
-      set({ error: err.message || 'Failed to create product', loading: false });
+      set({ error: err.response?.data?.message || err.message || 'Failed to create product', loading: false });
     }
   },
 
+  // Update a product
   updateProduct: async (id, data) => {
     set({ loading: true, error: null });
     try {
       const formData = new FormData();
       for (const key in data) {
         if (data[key] !== null && data[key] !== undefined) {
-          if (key === "product_image") {
-            if (data[key] instanceof File) {
-              formData.append(key, data[key]);
-            }
-          } else {
+          if (key === 'product_image' && data[key] instanceof File) {
+            formData.append(key, data[key]);
+          } else if (key !== 'product_image') {
             formData.append(key, data[key]);
           }
         }
       }
       formData.append('_method', 'PUT');
-  
+
       const res = await request(`/products/${id}`, 'POST', formData);
-  
       set((state) => ({
         products: state.products.map((p) => (p.id === id ? res.product : p)),
         loading: false,
       }));
     } catch (err) {
-      set({ error: err.message || 'Failed to update product', loading: false });
+      set({ error: err.response?.data?.message || err.message || 'Failed to update product', loading: false });
     }
   },
-  
-  
 
+  // Delete a product
   deleteProduct: async (id) => {
     set({ loading: true, error: null });
     try {
@@ -135,8 +117,7 @@ export const useProductStore = create((set) => ({
         loading: false,
       }));
     } catch (err) {
-      set({ error: err.message || 'Failed to delete product', loading: false });
+      set({ error: err.response?.data?.message || err.message || 'Failed to delete product', loading: false });
     }
   },
 }));
-

@@ -122,7 +122,8 @@ export default function CompanyLayout({ children }) {
   const links = [
     { href: `/company/dashboard`, label: "Dashboard", icon: LayoutGrid },
     { href: `/company/order`, label: "Order Lists", icon: Package },
-    { href: `/company/product`, label: "Product", icon: Box },
+    { href: `/company/stores`, label: "Stores", icon: Warehouse },
+    { href: `/company/products`, label: "Product", icon: Box },
     { href: `/company/categories`, label: "Categories", icon: Tags },
     {
       href: `/company/promotionCategories`,
@@ -130,15 +131,14 @@ export default function CompanyLayout({ children }) {
       icon: TicketPercent,
     },
     { href: `/company/promotions`, label: "Promotions", icon: TicketPercent },
-    { href: `/company/stores`, label: "Add Stores", icon: Warehouse },
     {
       href: `/company/invoicemanager`,
       label: "Invoice Manager",
       icon: Receipt,
     },
     { href: `/company/stocks`, label: "Stocks", icon: Building2 },
-    { href: `/company/accounts`, label: "Accounts", icon: Users },
-    { href: `/company/setting`, label: "Setting", icon: Settings },
+    { href: `/company/profile-company`, label: "Accounts", icon: Users },
+    { href: `/company/settings`, label: "Setting", icon: Settings },
   ];
 
   const currentPage = links.find((link) => pathname.startsWith(link.href));

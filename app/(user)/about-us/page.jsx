@@ -8,5 +8,10 @@ export const metadata = {
 };
 
 export default function AboutUsPage() {
-  return <AboutUsClient />;
+  return (
+    <div >
+      <AboutUsClient />
+     
+    </div>
+  );
 }

@@ -20,9 +20,7 @@ export default function HomePage() {
          <div className='p-6'>
          <BrandCategorySection />
          </div>
-         <div>
-            <PartnerLogoBanner />
-         </div>
+
         {/* <div className='p-6'> 
             <Products />
         </div> */}

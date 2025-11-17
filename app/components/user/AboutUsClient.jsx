@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaFacebookF, FaLinkedinIn, FaGithub, FaRocket, FaShieldAlt, FaUsers } from 'react-icons/fa'; // Added new icons
+import PartnerLogoBanner from './PartnerLogoBanner';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -230,6 +231,10 @@ const AboutUsClient = () => {
     </div>
   </motion.section>
 </div>
+
+<div>
+            <PartnerLogoBanner />
+         </div>
 
 
 

@@ -244,7 +244,7 @@ export default function EditProfilePage() {
           {/* Buttons */}
           <div className="flex justify-end gap-4 pt-4">
             <Link
-              href="/profile"
+              href="/admin/dashboard"
               className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-indigo-500 border border-transparent rounded-md hover:opacity-90 transition-opacity"
             >
               Cancel
