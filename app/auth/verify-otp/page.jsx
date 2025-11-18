@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../../stores/authStore';
 import { Loader2, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { motion } from 'framer-motion'; // Added motion for entry animation
 
 export default function OtpPage({ destination }) {
   const router = useRouter();
+  // Using destructuring to get props/functions from the store
   const { otpUserId, verifyOtp, otpSent, resendOtp } = useAuthStore();
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,6 +19,8 @@ export default function OtpPage({ destination }) {
 
   // Redirect if no OTP pending
   useEffect(() => {
+    // Note: This relies on how otpSent is managed in useAuthStore. 
+    // If destination is null/undefined when the component mounts, consider redirecting too.
     if (!otpSent) router.push('/auth/login');
   }, [otpSent, router]);
 
@@ -41,6 +45,7 @@ export default function OtpPage({ destination }) {
 
       toast.success('OTP Verified Successfully!');
 
+      // Role-based redirection logic
       switch (verifiedUser.role) {
         case 'admin':
           router.push('/admin/dashboard');
@@ -60,63 +65,87 @@ export default function OtpPage({ destination }) {
 
   const handleResend = async () => {
     setError('');
-    setLoading(true);
+    // Setting global loading to prevent double-click or simultaneous form actions
+    // Note: The useAuthStore loading state is not used here, so we'll rely on local state.
+    setLoading(true); 
     try {
       await resendOtp(otpUserId);
       setResendTimer(60);
       setCanResend(false);
-      toast.success('OTP Resent Successfully!');
+      toast.success('New OTP sent!');
     } catch (err) {
+      // Reverting to local state control on error
       setError(err.message || 'Failed to resend OTP');
     } finally {
       setLoading(false);
     }
   };
 
+  const cardVariants = { 
+    hidden: { opacity: 0, scale: 0.95 }, 
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: "easeOut" } } 
+  };
+  
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 p-4">
-      <div className="p-8 sm:p-10 bg-white rounded-3xl shadow-xl w-full max-w-md space-y-6">
-        <h2 className="text-3xl font-bold text-center text-gray-800">Verify OTP</h2>
-        <p className="text-gray-500 text-center">
-          Enter the 6-digit OTP sent to <span className="font-semibold">{destination}</span>
-        </p>
-
-        <form onSubmit={handleVerify} className="space-y-4">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4 font-sans text-gray-800">
+      <motion.div 
+        className="p-8 sm:p-10 bg-white rounded-2xl shadow-xl border border-gray-100 w-full max-w-sm space-y-6" // Refined card style
+        initial="hidden" 
+        animate="visible" 
+        variants={cardVariants}
+      >
+        <div className="text-center">
+            <h2 className="text-3xl font-extrabold text-gray-800">Two-Step Verification</h2>
+            <p className="text-gray-500 text-sm mt-2">
+                We sent a 6-digit code to <span className="font-semibold text-gray-700">{destination}</span>
+            </p>
+        </div>
+        
+        <form onSubmit={handleVerify} className="space-y-6"> {/* Increased spacing */}
           <input
             type="text"
             inputMode="numeric"
             pattern="[0-9]*"
             maxLength={6}
             value={otp}
-            onChange={(e) => setOtp(e.target.value.replace(/\D/, ''))} // numeric only
+            onChange={(e) => setOtp(e.target.value.replace(/\D/, ''))}
             placeholder="Enter OTP"
-            className="w-full py-3 px-4 border border-gray-300 rounded-xl text-center text-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+            // Prominent, centered input style
+            className="w-full py-4 px-4 tracking-[1em] text-center font-mono text-xl border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition shadow-md"
             required
+            disabled={loading}
           />
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+          
+          {error && <p className="text-red-500 text-sm text-center font-medium">{error}</p>}
 
-          <button
+          <motion.button
             type="submit"
             disabled={loading || otp.length < 6}
-            className="w-full flex justify-center items-center gap-2 bg-purple-600 text-white py-3 rounded-xl hover:bg-purple-700 disabled:bg-purple-400 transition"
+            // Consistent gradient primary button
+            className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-sky-500 to-indigo-600 text-white py-3 rounded-xl hover:shadow-lg hover:shadow-blue-500/50 disabled:opacity-60 transition font-semibold text-base focus:outline-none focus:ring-4 focus:ring-blue-200"
+            whileHover={{ scale: 1.01 }} 
+            whileTap={{ scale: 0.99 }}
           >
-            {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Verify OTP'}
-          </button>
+            {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Verify Account'}
+          </motion.button>
         </form>
 
-        <div className="text-center text-sm text-gray-500 mt-4">
+        <div className="text-center text-sm mt-6 pt-4 border-t border-gray-100">
+          <p className='text-gray-500 mb-2'>Didn't receive the code?</p>
           {canResend ? (
             <button
               onClick={handleResend}
-              className="flex items-center justify-center gap-2 mx-auto text-purple-600 font-semibold hover:text-purple-500"
+              disabled={loading} // Disable resend while loading/verifying
+              className="flex items-center justify-center gap-2 mx-auto text-indigo-600 font-semibold hover:text-indigo-500 transition disabled:text-gray-400 disabled:cursor-not-allowed"
             >
-              <RefreshCw className="h-4 w-4 animate-spin-slow" /> Resend OTP
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> 
+              Resend Code Now
             </button>
           ) : (
-            <span>Resend OTP in {resendTimer}s</span>
+            <p className='text-gray-500 font-medium'>You can resend the code in <span className='text-indigo-600 font-bold'>{resendTimer}</span> seconds.</p>
           )}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -63,6 +63,44 @@ export const useProductStore = create((set) => ({
     }
   },
 
+  // inside useProductStore
+fetchProductsByStore: async (storeId) => {
+  set({ loading: true, error: null });
+  try {
+    const data = await request(`/products?store_id=${storeId}`, 'GET');
+    set({ products: data, loading: false });
+  } catch (err) {
+    console.error('Failed to fetch products by store:', err);
+    set({ error: err.message, loading: false });
+  }
+},
+
+fetchCategoryById: async (categoryId) => {
+  try {
+    const data = await request(`/categories/${categoryId}`, 'GET');
+    return data;
+  } catch (err) {
+    console.error('Failed to fetch category:', err);
+    return null;
+  }
+},
+
+// inside useProductStore
+fetchProductsByCategoryAndStore: async (categoryId, storeId = null) => {
+  set({ loading: true, error: null });
+  try {
+    let url = `/categories/${categoryId}/products`;
+    if (storeId && storeId !== 'all') {
+      url += `?store_id=${storeId}`;
+    }
+    const data = await request(url, 'GET');
+    set({ products: Array.isArray(data) ? data : [], loading: false });
+  } catch (err) {
+    set({ error: err.message || 'Failed to fetch products', loading: false });
+  }
+},
+
+
   // Create a product
   createProduct: async (data) => {
     set({ loading: true, error: null });

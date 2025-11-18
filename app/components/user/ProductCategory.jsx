@@ -9,8 +9,6 @@ import "swiper/css/effect-fade";
 import { useEventStore } from "../../stores/useEventStore";
 import Link from "next/link"; // ✅ correct import for Next.js links
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
 const slugify = (text) => {
   if (!text) return "untitled";
   return text
@@ -30,14 +28,15 @@ export default function EventsCarousel() {
   }, []);
 
   // console.log("Events:", eventStore.events);
-  
 
   if (eventStore.loading) {
     return (
       <div className="w-full relative shadow-xl rounded-2xl py-8 flex items-center justify-center h-[400px]">
         <div className="flex flex-col items-center space-y-6">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent"></div>
-          <p className="text-slate-600 font-medium text-lg">Loading events...</p>
+          <p className="text-slate-600 font-medium text-lg">
+            Loading events...
+          </p>
         </div>
       </div>
     );
@@ -60,7 +59,9 @@ export default function EventsCarousel() {
               d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <p className="text-slate-700 font-semibold text-lg">{eventStore.error}</p>
+          <p className="text-slate-700 font-semibold text-lg">
+            {eventStore.error}
+          </p>
           <button
             onClick={eventStore.fetchEvents}
             className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 font-semibold"
@@ -73,7 +74,7 @@ export default function EventsCarousel() {
   }
 
   return (
-    <div className="w-full relative shadow-xl rounded-2xl py-8">
+    <div className="w-full relative shadow-xl rounded-2xl py-2">
       <div className="container mx-auto px-4">
         <Swiper
           modules={[Autoplay, Pagination, Navigation, EffectFade]}
@@ -169,19 +170,18 @@ export default function EventsCarousel() {
 
                 {/* Image Section */}
                 <div className="w-full md:w-3/5 h-[300px] md:h-full order-1 md:order-2 relative">
-                <div
-  className="w-full h-full rounded-2xl md:rounded-r-3xl md:rounded-l-none bg-cover bg-center shadow-xl relative overflow-hidden"
-  style={{
-    backgroundImage: event.event_image_url
-      ? `url(${event.event_image_url})`
-      : "linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)",
-  }}
->
-  <div className="absolute inset-0 bg-gradient-to-t from-blue-900/30 via-transparent to-blue-900/10"></div>
-  <div className="absolute top-4 right-4 w-20 h-20 bg-white/10 backdrop-blur-sm rounded-full border border-white/20"></div>
-  <div className="absolute bottom-6 left-6 w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full border border-white/20"></div>
-</div>
-
+                  <div
+                    className="w-full h-full rounded-2xl md:rounded-r-3xl md:rounded-l-none bg-cover bg-center shadow-xl relative overflow-hidden"
+                    style={{
+                      backgroundImage: event.event_image_url
+                        ? `url(${event.event_image_url})`
+                        : "linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)",
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-blue-900/30 via-transparent to-blue-900/10"></div>
+                    <div className="absolute top-4 right-4 w-20 h-20 bg-white/10 backdrop-blur-sm rounded-full border border-white/20"></div>
+                    <div className="absolute bottom-6 left-6 w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full border border-white/20"></div>
+                  </div>
                 </div>
               </div>
             </SwiperSlide>

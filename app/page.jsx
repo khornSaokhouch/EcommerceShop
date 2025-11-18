@@ -17,7 +17,7 @@ export default function HomePage() {
          <div> 
           <ProductCategory />
          </div>
-         <div className='p-6'>
+         <div>
          <BrandCategorySection />
          </div>
 

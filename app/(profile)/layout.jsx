@@ -13,7 +13,7 @@ export default function ProfileLayout({ children }) {
       <Navbar />
 
       {/* Main content area */}
-      <div className="flex-1 max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 w-full">
+      <div className="flex-1 max-w-full mx-auto py-8 px-4 sm:px-6 lg:px-8 w-full">
         <div className="flex flex-col lg:flex-row lg:gap-8">
           
           {/* Sidebar */}
