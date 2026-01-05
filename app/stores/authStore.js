@@ -20,7 +20,7 @@ export const useAuthStore = create(
         set({ loading: true, error: null, otpSent: false });
 
         try {
-          const res = await request("/login", "POST", { login, password });
+          const res = await request("/auth/login", "POST", { login, password });
 
           // OTP response
           if (res?.user_id && !res?.token) {
@@ -78,7 +78,7 @@ export const useAuthStore = create(
         set({ loading: true, error: null });
 
         try {
-          const res = await request("/register", "POST", {
+          const res = await request("/auth/register", "POST", {
             name,
             email,
             password,
@@ -126,10 +126,18 @@ export const useAuthStore = create(
 
       telegramLogin: async (data) => {
         set({ loading: true, error: null });
+      
         try {
-          const res = await request('/auth/telegram/callback', 'POST', data);
+          const res = await request(
+            'http://localhost:5000/auth/telegram/callback', 
+            'POST', 
+            data
+          );
+      
           set({ user: res.user, token: res.token });
+      
           localStorage.setItem('token', res.token);
+      
           return res;
         } catch (err) {
           set({ error: err.message });
@@ -138,6 +146,7 @@ export const useAuthStore = create(
           set({ loading: false });
         }
       },
+      
 
       // ------------------------------
       // Logout

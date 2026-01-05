@@ -2,7 +2,6 @@
 
 import CartItem from "./CartItem";
 import CartSummary from "./CartSummary";
-import { toast } from "react-hot-toast";
 
 export default function CartCard({ cart, userId, onQuantityChange, onDeleteItem, onDeleteCart }) {
   const cartTotal = cart.items.reduce((total, item) => {

@@ -166,6 +166,7 @@ export default function ShoppingCartPage() {
             </motion.div>
           ))}
         </div>
+
       </motion.div>
     </div>
   );

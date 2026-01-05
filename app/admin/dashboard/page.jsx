@@ -139,8 +139,8 @@ const totalRevenue = useMemo(() => {
 
   const metrics = [
     { title: "Total Users", value: totalUsers, icon: <Users className="w-6 h-6 text-blue-500" /> },
-    { title: "Total Orders", value: totalOrders, icon: <ShoppingCart className="w-6 h-6 text-green-500" /> },
-    { title: "Revenue", value: `$${totalRevenue}`, icon: <DollarSign className="w-6 h-6 text-yellow-500" /> },
+    // { title: "Total Orders", value: totalOrders, icon: <ShoppingCart className="w-6 h-6 text-green-500" /> },
+    // { title: "Revenue", value: `$${totalRevenue}`, icon: <DollarSign className="w-6 h-6 text-yellow-500" /> },
     { title: "Events", value: totalEvents, icon: <Calendar className="w-6 h-6 text-purple-500" /> },
     { title: "Total Companies", value: totalCompanies, icon: <CreditCard className="w-6 h-6 text-teal-500" /> },
     { title: "Pending Companies", value: pendingCompanies, icon: <Users className="w-6 h-6 text-orange-500" /> },

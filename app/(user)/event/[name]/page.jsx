@@ -1,10 +1,21 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation"; // Correct Next.js hooks
-import { useEventStore } from "../../../stores/useEventStore"; // Adjust path
+import { useRouter, useParams } from "next/navigation";
+import { useEventStore } from "../../../stores/useEventStore";
 import Link from "next/link";
-
+import { 
+  Calendar, 
+  MapPin, 
+  Share2, 
+  ArrowLeft, 
+  Clock, 
+  ChevronRight,
+  ExternalLink,
+  ShieldCheck,
+  Users
+} from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const slugify = (text) =>
   (text || "")
@@ -16,7 +27,7 @@ const slugify = (text) =>
     .replace(/--+/g, "-");
 
 export default function EventDetails() {
-  const { name } = useParams(); // dynamic param from folder [name]
+  const { name } = useParams();
   const router = useRouter();
   const eventStore = useEventStore();
 
@@ -26,14 +37,18 @@ export default function EventDetails() {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
-    const options = { year: "numeric", month: "short", day: "numeric" };
-    return new Date(dateStr).toLocaleDateString(undefined, options);
+    return new Date(dateStr).toLocaleDateString(undefined, { 
+      weekday: 'long', 
+      year: "numeric", 
+      month: "long", 
+      day: "numeric" 
+    });
   };
 
   const fetchEvent = async () => {
     setLoading(true);
     try {
-      await eventStore.fetchEvents(); // fetch all events
+      await eventStore.fetchEvents();
       const matched = eventStore.events.find((e) => slugify(e.name) === name);
       if (!matched) throw new Error("Event not found");
       setEvent(matched);
@@ -51,148 +66,196 @@ export default function EventDetails() {
   const shareEvent = async () => {
     if (!event) return;
     try {
-      const url = window.location.href;
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(window.location.href);
       alert("Event link copied to clipboard!");
     } catch {
       alert("Failed to copy link.");
     }
   };
 
-  if (loading)
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent"></div>
-          <p className="text-slate-600 font-medium text-lg">Loading event...</p>
-        </div>
-      </div>
-    );
-
-  if (error)
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-blue-100 px-8 py-10 text-center">
-          <p className="text-slate-700 font-semibold text-lg">{error}</p>
-          <button
-            onClick={() => router.back()}
-            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-          >
-            Go Back
-          </button>
-        </div>
-      </div>
-    );
-
+  if (loading) return <LoadingScreen />;
+  if (error) return <ErrorState error={error} onBack={() => router.back()} />;
   if (!event) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10">
-      <div className="container mx-auto px-4 md:px-8 lg:px-16">
-        {/* Back Button */}
+    <div className="min-h-screen bg-[#f8fafc] pb-20">
+      {/* Header / Nav */}
+      <div className="max-w-7xl mx-auto px-4 pt-6 flex items-center justify-between">
         <button
           onClick={() => router.back()}
-          className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 mb-6"
+          className="group flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm border border-gray-100 text-gray-600 hover:text-blue-600 transition-all"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-          <span className="font-medium">Back</span>
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <span className="text-sm font-bold">Back to Events</span>
         </button>
+        <button onClick={shareEvent} className="p-2.5 bg-white rounded-xl border border-gray-100 shadow-sm text-gray-500 hover:text-blue-600 transition-all">
+          <Share2 className="w-5 h-5" />
+        </button>
+      </div>
 
-        {/* Event Details Card */}
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
-          {/* Event Image */}
-          <div
-            className="w-full h-80 md:h-[70vh] bg-cover bg-center relative"
-            style={{
-              backgroundImage: event.event_image_url
-                ? `url(${event.event_image_url})`
-                : "linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)",
-            }}
+      <main className="max-w-7xl mx-auto px-4 mt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Left Column: Visuals & Description */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="lg:col-span-8 space-y-8"
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20"></div>
-          </div>
-
-          {/* Event Info */}
-          <div className="p-6 md:p-12 space-y-6">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-              {event.name}
-            </h1>
-
-            <div className="flex flex-col md:flex-row items-start md:items-center space-y-2 md:space-y-0 md:space-x-6 text-gray-600">
-              {/* Dates */}
-              <div className="flex items-center space-x-2">
-                <svg
-                  className="w-5 h-5 text-blue-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-                <span>
-                  {formatDate(event.start_date)} – {formatDate(event.end_date)}
-                </span>
-              </div>
-
-              {/* Location */}
-              <div className="flex items-center space-x-2">
-                <svg
-                  className="w-5 h-5 text-blue-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M17 20h5v-2a2 2 0 00-2-2h-3v4zm0 0v-4H7v4h10zm-5-8a2 2 0 100-4 2 2 0 000 4zm0 0v4H7v-4h5z"
-                  />
-                </svg>
-                <span>{event.location || "Online"}</span>
+            {/* Image Hero */}
+            <div className="relative aspect-video lg:aspect-[21/9] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-blue-900/10">
+              <img
+                src={event.event_image_url || "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80"}
+                alt={event.name}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" />
+              <div className="absolute bottom-8 left-8 right-8">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500 text-white text-[10px] font-bold uppercase tracking-wider rounded-lg mb-4">
+                  <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                  Upcoming Event
+                </div>
+                <h1 className="text-3xl md:text-5xl font-black text-white leading-tight">
+                  {event.name}
+                </h1>
               </div>
             </div>
 
-            {/* Description */}
-            <p className="text-gray-700 text-base md:text-lg leading-relaxed">
-              {event.description}
-            </p>
+            {/* Description Card */}
+            <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-gray-100">
+              <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                About the Event
+              </h3>
+              <p className="text-gray-600 text-lg leading-relaxed whitespace-pre-line">
+                {event.description}
+              </p>
 
-            {/* Actions */}
-            <div className="flex flex-wrap items-center space-x-4">
-              <Link
-                href="/register"
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-cyan-700 transition-all duration-300"
-              >
-                Register Now
-              </Link>
-
-              <button
-                onClick={shareEvent}
-                className="px-6 py-3 border border-blue-500 text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-300"
-              >
-                Share
-              </button>
+              {/* Perks / Quick Info */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-10">
+                <PerkItem icon={ShieldCheck} title="Verified Event" desc="Secure entry and verified hosts" />
+                <PerkItem icon={Users} title="Networking" desc="Meet industry experts & peers" />
+              </div>
             </div>
-          </div>
+          </motion.div>
+
+          {/* Right Column: Sticky Action Card */}
+          <motion.aside 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="lg:col-span-4 lg:sticky lg:top-28 space-y-6"
+          >
+            <div className="bg-white rounded-[2rem] p-8 shadow-xl shadow-blue-900/5 border border-blue-50 relative overflow-hidden">
+              {/* Decorative background circle */}
+              <div className="absolute -top-12 -right-12 w-24 h-24 bg-blue-50 rounded-full blur-2xl" />
+              
+              <div className="relative z-10 space-y-6">
+                <div>
+                  <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-4">Event Details</p>
+                  
+                  <div className="space-y-5">
+                    <DetailItem 
+                      icon={Calendar} 
+                      label="Date" 
+                      value={formatDate(event.start_date)} 
+                    />
+                    <DetailItem 
+                      icon={Clock} 
+                      label="Time" 
+                      value="09:00 AM - 05:00 PM" 
+                    />
+                    <DetailItem 
+                      icon={MapPin} 
+                      label="Location" 
+                      value={event.location || "Global Online"} 
+                      highlight
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-gray-100">
+                  <Link
+                    href="/register"
+                    className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-2xl font-bold hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-[0.98]"
+                  >
+                    Secure Your Spot <ChevronRight className="w-4 h-4" />
+                  </Link>
+                  <p className="text-[11px] text-gray-400 text-center mt-4">
+                    Limited seats available. Registration closes soon.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Support Widget */}
+            <div className="bg-slate-900 rounded-[2rem] p-6 text-white flex items-center justify-between group cursor-pointer overflow-hidden relative">
+               <div className="relative z-10">
+                  <p className="text-xs text-slate-400 font-medium">Need assistance?</p>
+                  <p className="font-bold">Contact Support</p>
+               </div>
+               <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-blue-500 transition-colors relative z-10">
+                  <ExternalLink className="w-4 h-4 text-white" />
+               </div>
+               <div className="absolute inset-0 bg-blue-600/10 translate-y-full group-hover:translate-y-0 transition-transform" />
+            </div>
+          </motion.aside>
+
         </div>
+      </main>
+    </div>
+  );
+}
+
+// Sub-components for a cleaner main function
+function DetailItem({ icon: Icon, label, value, highlight }) {
+  return (
+    <div className="flex gap-4">
+      <div className={`p-2.5 rounded-xl ${highlight ? 'bg-blue-50 text-blue-600' : 'bg-gray-50 text-gray-400'}`}>
+        <Icon className="w-5 h-5" />
+      </div>
+      <div>
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{label}</p>
+        <p className={`text-sm font-bold ${highlight ? 'text-blue-700' : 'text-gray-700'}`}>{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function PerkItem({ icon: Icon, title, desc }) {
+  return (
+    <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-blue-100 transition-all">
+      <Icon className="w-6 h-6 text-blue-500" />
+      <div>
+        <h4 className="text-sm font-bold text-gray-900">{title}</h4>
+        <p className="text-xs text-gray-500">{desc}</p>
+      </div>
+    </div>
+  );
+}
+
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm font-bold text-gray-400 animate-pulse">Syncing Event Data...</p>
+      </div>
+    </div>
+  );
+}
+
+function ErrorState({ error, onBack }) {
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="max-w-md w-full text-center bg-white p-10 rounded-[2.5rem] shadow-xl border border-gray-100">
+        <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+          <ArrowLeft className="w-8 h-8" />
+        </div>
+        <h2 className="text-2xl font-black text-gray-900 mb-2">Oops! Event Lost</h2>
+        <p className="text-gray-500 mb-8">{error}</p>
+        <button onClick={onBack} className="w-full py-4 bg-gray-900 text-white rounded-2xl font-bold hover:bg-black transition-all">
+          Return to Events
+        </button>
       </div>
     </div>
   );

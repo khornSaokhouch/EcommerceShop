@@ -39,30 +39,39 @@ export default function CompanyOrdersPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Polling interval in ms
+  const POLL_INTERVAL = 3000;
+
   useEffect(() => {
+    // Fetch user info initially
     if (!user) {
       fetchUser();
       return;
     }
-  
+
+    // Polling to check telegram_id
+    const interval = setInterval(async () => {
+      await fetchUser();
+    }, POLL_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, [user, fetchUser]);
+
+  useEffect(() => {
+    if (!user) return;
+
     if (!user.telegram_id) {
       setShowTelegramPopup(true);
-      return; // stop loading orders
+      return;
     }
-  
-    // Telegram connected → reload page
-    if (showTelegramPopup) {
-      setShowTelegramPopup(false);
-      window.location.reload(); // 🔄 reload the page to show orders
-    }
-  
+
+    // Telegram connected → fetch orders
+    setShowTelegramPopup(false);
     if (companyId) {
       fetchOrders(companyId);
       fetchOrderStatuses();
     }
-  }, [user, companyId, fetchOrders, fetchOrderStatuses, showTelegramPopup]);
-  
-
+  }, [user, companyId, fetchOrders, fetchOrderStatuses]);
 
   if (loadingUser || ordersLoading || statusesLoading) {
     return <div className="text-center p-10">Loading...</div>;

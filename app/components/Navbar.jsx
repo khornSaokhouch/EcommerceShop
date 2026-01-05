@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useAuthStore } from '../stores/authStore';
 import { useUserStore } from '../stores/userStore';
 import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import {
   Search,
   MapPin,
@@ -13,507 +13,241 @@ import {
   ShoppingCart,
   Menu,
   X,
-  Store as StoreIcon,
+  Store,
   HelpCircle,
   ShoppingBag,
-  ListOrdered,
-  Truck,
   ChevronDown,
-  MessageCircle ,
+  MessageCircle,
+  LayoutGrid,
+  Bell,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCategoryStore } from '../stores/useCategoryStore';
 
-// Reusable SVG icon for the logo (Blue/Cyan Gradient)
-const TechLogoIcon = (props) => (
-  <svg
-    width="36"
-    height="36"
-    viewBox="0 0 40 40"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <defs>
-      <linearGradient
-        id="logoGradient"
-        x1="12"
-        y1="20"
-        x2="28"
-        y2="20"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop stopColor="#06B6D4" /> 
-        <stop offset="1" stopColor="#3B82F6" />
-      </linearGradient>
-    </defs>
-    <path
-      d="M12 10H28"
-      stroke="url(#logoGradient)"
-      strokeWidth="3.5"
-      strokeLinecap="round"
-    />
-    <path
-      d="M20 10V30"
-      stroke="url(#logoGradient)"
-      strokeWidth="3.5"
-      strokeLinecap="round"
-      />
-    <path
-      d="M16 30C16 27.7909 17.7909 26 20 26C22.2091 26 24 27.7909 24 30"
-      stroke="url(#logoGradient)"
-      strokeWidth="3.5"
-      strokeLinecap="round"
-      />
-  </svg>
-);
-
-
+// --- YOUR FUNCTIONS ---
 const slugify = (text) => {
   if (!text) return "untitled";
-  return text
-    .toString()
-    .toLowerCase()
-    .trim()
+  return text.toString().toLowerCase().trim()
     .replace(/\s+/g, "-")
     .replace(/[^\w\-]+/g, "")
     .replace(/\-\-+/g, "-");
 };
 
-
-// --- UPDATED Category Dropdown Component for Desktop (Cleaner look) ---
-const CategoryDropdown = ({ categories }) => {
-  return (
-    <div className="relative group">
-      {/* The main trigger (header) */}
-      <div 
-        className="flex items-center text-gray-700 hover:text-blue-600 transition-colors duration-300 font-semibold cursor-default bg-gray-100 p-2 rounded-lg"
-      >
-        <ListOrdered className="h-5 w-5 mr-2 text-blue-500" />
-        <span className="whitespace-nowrap">Shop Categories</span>
-        <ChevronDown className="h-3 w-3 ml-2 transition-transform duration-200 group-hover:rotate-180" />
-      </div>
-      
-      {/* Dropdown Content */}
-      <div 
-        className="absolute z-30 left-0 -mt-1 w-64 p-3 bg-white rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-300 ease-in-out transform origin-top-left border border-gray-100"
-      >
-        <div className="pt-2 pb-1">
-          {categories && categories.length > 0 ? (
-            categories.map((category) => (
-              <Link
-                key={category.name}
-                href={`/category/${slugify(category?.name)}`} 
-                className="flex items-center px-4 py-2 text-sm text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
-              >
-                {category.name}
-              </Link>
-            ))
-          ) : (
-            <div className="px-4 py-2 text-sm text-gray-500">
-              No categories found.
-            </div>
-          )}
-          <hr className="my-2 border-gray-100" />
-          <Link
-            href="/products"
-            className="flex items-center px-4 py-2 text-sm font-bold text-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200"
-          >
-            View All
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
+const getUserInitial = (name) => {
+  return name ? name.charAt(0).toUpperCase() : 'U';
 };
-// -----------------------------------------------------------------
 
+const getCleanImageUrl = (url) => {
+  if (!url) return null;
+  const lastHttpIndex = url.lastIndexOf('http');
+  if (lastHttpIndex > 0) {
+    return url.substring(lastHttpIndex);
+  }
+  return url;
+};
+
+const TechLogoIcon = () => (
+  <div className="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl shadow-lg shadow-blue-200">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M7 8L3 12L7 16" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M17 8L21 12L17 16" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M14 4L10 20" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  </div>
+);
 
 export default function Navbar() {
-  const router = useRouter();
   const { user: authUser } = useAuthStore();
   const { user: userProfile, fetchUserById } = useUserStore();
+  const { categories, fetchCategories } = useCategoryStore();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [location, setLocation] = useState("Fetching location...");
-  // Use the Category Store
-  const { categories, fetchCategories } = useCategoryStore();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [location, setLocation] = useState("Detecting...");
 
   useEffect(() => {
-    if (authUser?.id) {
-      fetchUserById(authUser.id);
-    }
-    fetchCategories(); 
+    if (authUser?.id) fetchUserById(authUser.id);
+    fetchCategories();
+    
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [authUser, fetchUserById, fetchCategories]);
 
   useEffect(() => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-
-          // Optional: Convert lat/lng to human-readable address using a reverse geocoding API
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-          );
-          const data = await response.json();
-          setLocation(data.address.city || data.address.town || data.display_name);
-        },
-        (error) => {
-          console.error(error);
-          setLocation("Location permission denied");
-        }
-      );
-    } else {
-      setLocation("Geolocation not supported");
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`);
+          const data = await res.json();
+          setLocation(data.address.city || data.address.town || "Unknown");
+        } catch { setLocation("Location Error"); }
+      });
     }
   }, []);
-
-  // Helper functions (kept the same)
-  const getUserInitial = (name) => {
-    return name ? name.charAt(0).toUpperCase() : 'U';
-  };
-
-  const getCleanImageUrl = (url) => {
-    if (!url) return null;
-    const lastHttpIndex = url.lastIndexOf('http');
-    if (lastHttpIndex > 0) {
-      return url.substring(lastHttpIndex);
-    }
-    return url;
-  };
 
   const displayImageUrl = userProfile ? getCleanImageUrl(userProfile.profile_image_url) : null;
   const userInitial = userProfile ? getUserInitial(userProfile.username) : 'U';
 
-  const primaryNavItems = [
-    { label: 'Home', href: '/' },
-    { label: 'About Us', href: '/about-us' },
-    { label: 'Contact Us', href: '/contact-us' },
-  ];
-
-  const secondaryUtilityItems = [
-    { label: 'Products', href: '/products', icon: ShoppingBag },
-    { label: 'FAQ', href: '/faq', icon: HelpCircle },
-    {
-      label: 'Become A Seller', // Corrected typo in label
-      href: authUser?.id ? `/become-to-seller` : '/auth/login',
-      icon: StoreIcon,
-    },
-  ];
+  const NavLink = ({ href, children, icon: Icon }) => (
+    <Link href={href} className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-all duration-200 group">
+      {Icon && <Icon className="w-4 h-4 text-gray-400 group-hover:text-blue-500" />}
+      {children}
+    </Link>
+  );
 
   return (
-    // Outer wrapper for max-width and background
-    <div className="w-full bg-gray-50 p-2 font-sans">
-      {/* Header Container: Two Rows on Desktop */}
-      <header className="bg-white w-full max-w-screen-2xl mx-auto rounded-xl shadow-2xl transition-all duration-300">
+    <div className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 px-4 py-3 ${isScrolled ? 'mt-0' : 'mt-2'}`}>
+      {/* FIXED: Removed overflow-hidden from header to allow dropdown to be visible */}
+      <header className={`mx-auto max-w-7xl transition-all duration-300 rounded-2xl border border-white/20 shadow-xl ${isScrolled ? 'bg-white/90 backdrop-blur-lg shadow-blue-900/5' : 'bg-white'}`}>
         
-        {/* ROW 1: Logo, Search, & User Actions (Primary) */}
-        <div className="flex items-center justify-between h-20 px-4 sm:px-6 lg:px-8">
-          
-          {/* Logo & Primary Nav Links */}
-          <div className="flex items-center space-x-6">
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden text-gray-600 hover:text-blue-600 focus:outline-none transition-colors duration-300 p-2 rounded-full hover:bg-gray-100"
-            >
-              {isMobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </button>
-
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
-              <TechLogoIcon className="h-8 w-8" />
-              <span className="text-2xl font-black tracking-tight bg-gradient-to-r from-cyan-500 to-blue-500 text-transparent bg-clip-text whitespace-nowrap">
-                E-COMMERCES
+        <div className="flex items-center justify-between px-4 py-3 md:px-6">
+          <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center gap-3 group">
+              <TechLogoIcon />
+              <span className="hidden lg:block text-xl font-black tracking-tighter bg-gradient-to-r from-blue-700 to-cyan-500 bg-clip-text text-transparent uppercase">
+                TECHNOCORE
               </span>
             </Link>
 
-            {/* Primary Nav Items (Desktop - Shifted emphasis to a cleaner look) */}
-            <div className="hidden lg:flex items-center gap-8">
-              {primaryNavItems.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="text-gray-600 hover:text-blue-600 transition-colors duration-300 font-medium relative group"
-                >
-                  {item.label}
-                  {/* Subtle hover underline effect */}
-                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center"></span>
-                </Link>
-              ))}
-            </div>
+            <nav className="hidden lg:flex items-center gap-6">
+              <NavLink href="/">Home</NavLink>
+              <NavLink href="/products" icon={ShoppingBag}>Shop</NavLink>
+              
+              {/* --- CATEGORY DROPDOWN --- */}
+              <div className="relative group py-2">
+                <button className="flex items-center gap-1 text-sm font-bold text-gray-700 hover:text-blue-600 outline-none">
+                  <LayoutGrid className="w-4 h-4" /> 
+                  Categories 
+                  <ChevronDown className="w-3 h-3 transition-transform duration-300 group-hover:rotate-180" />
+                </button>
+                
+                {/* Mega Menu Dropdown Box */}
+                <div className="absolute top-[100%] left-0 w-[480px] bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 grid grid-cols-2 gap-4 translate-y-4 group-hover:translate-y-0 z-[110]">
+                  {categories && categories.length > 0 ? (
+                    categories.slice(0, 8).map(cat => (
+                      <Link 
+                        key={cat.id} 
+                        href={`/category/${slugify(cat.name)}`} 
+                        className="p-3 rounded-xl hover:bg-blue-50 transition-all border border-transparent hover:border-blue-100 group/item"
+                      >
+                        <p className="font-bold text-gray-900 text-sm group-hover/item:text-blue-600">{cat.name}</p>
+                        <p className="text-[11px] text-gray-500">View all products in {cat.name}</p>
+                      </Link>
+                    ))
+                  ) : (
+                    <p className="col-span-2 text-sm text-gray-400 p-4 text-center">Loading categories...</p>
+                  )}
+                  <Link href="/categories" className="col-span-2 text-center py-2 text-xs font-bold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100">
+                    View All Categories
+                  </Link>
+                </div>
+              </div>
+            </nav>
           </div>
 
-          {/* Search Bar (Desktop/Tablet - Modern, rounded design) */}
-          <div className="relative hidden md:flex flex-grow max-w-xl mx-8">
+          <div className="hidden md:flex flex-1 max-w-md mx-8 relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Search className="h-4 w-4 text-gray-400 group-focus-within:text-blue-500" />
+            </div>
             <input
-              type="search"
+              type="text"
+              className="block w-full pl-11 pr-4 py-2 bg-gray-100 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200"
+              placeholder="Search products..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search products, brands, and more..."
-              className="w-full h-12 py-2 pl-5 pr-12 text-gray-800 bg-gray-100 border-2 border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition placeholder-gray-500 shadow-inner text-sm"
-              autoComplete="off"
             />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 hover:text-blue-600 transition"
-              onClick={() => {
-                /* Handle Search Submission */
-              }}
-            >
-              <Search className="h-5 w-5" />
+          </div>
+
+          <div className="flex items-center gap-2 md:gap-4">
+            <div className="flex items-center gap-1 md:gap-2">
+              <IconButton icon={MessageCircle} href="/chat" />
+              <IconButton icon={Heart} href="/favorites" />
+              <IconButton icon={ShoppingCart} href="/shopping-cart" count={3} primary />
+            </div>
+
+            <div className="h-8 w-px bg-gray-200 mx-2 hidden md:block" />
+
+            {userProfile ? (
+              <Link href="/profile" className="flex items-center gap-2 group">
+                <div className="relative w-9 h-9 rounded-full ring-2 ring-transparent group-hover:ring-blue-500 transition-all overflow-hidden bg-blue-500 flex items-center justify-center text-white">
+                  {displayImageUrl ? (
+                    <Image
+                      src={displayImageUrl}
+                      alt="Profile"
+                      fill
+                      className="object-cover"
+                      unoptimized={displayImageUrl.includes('googleusercontent')} 
+                    />
+                  ) : (
+                    <span className="font-bold">{userInitial}</span>
+                  )}
+                </div>
+              </Link>
+            ) : (
+              <Link href="/auth/login" className="px-5 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-lg">
+                Login
+              </Link>
+            )}
+
+            <button onClick={() => setIsMobileMenuOpen(true)} className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+              <Menu className="w-6 h-6" />
             </button>
           </div>
-
-          {/* User Profile/Actions (Right Side - Cleaner, more prominent icons) */}
-          <div className="flex items-center space-x-3 sm:space-x-4">
-            {userProfile ? (
-              <>
-                {/* ICONS (Favorites & Cart) - Now slightly larger and cleaner */}
-                <div className="flex items-center space-x-2 sm:space-x-3">
-                <Link
-                    href={`/chat`}
-                    title="Favorites"
-                    className="flex items-center justify-center w-10 h-10 p-2 rounded-full text-gray-600 hover:text-red-500 hover:bg-red-50 transition-colors duration-300 relative"
-                  >
-                    <MessageCircle  className="h-6 w-6" />
-                  </Link>
-                  <Link
-                    href={`/favorites`}
-                    title="Favorites"
-                    className="flex items-center justify-center w-10 h-10 p-2 rounded-full text-gray-600 hover:text-red-500 hover:bg-red-50 transition-colors duration-300 relative"
-                  >
-                    <Heart className="h-6 w-6" />
-                  </Link>
-                  <Link
-                    href={`/shopping-cart`}
-                    title="Cart"
-                    className="flex items-center justify-center w-10 h-10 p-2 rounded-full text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-300 relative"
-                  >
-                    <ShoppingCart className="h-6 w-6" />
-                  </Link>
-                </div>
-
-                {/* Profile Image/Initial */}
-                <Link
-                  href={`/profile`}
-                  className="block group ml-2" 
-                >
-                  <div className="w-10 h-10 relative rounded-full overflow-hidden ring-2 ring-blue-400 group-hover:ring-blue-600 transition-all duration-200 flex items-center justify-center bg-blue-500 text-white font-semibold text-lg">
-                    {displayImageUrl ? (
-                        <Image
-                            src={displayImageUrl}
-                            alt="User Profile"
-                            fill
-                            sizes="40px"
-                            className="object-cover"
-                            key={displayImageUrl}
-                        />
-                    ) : (
-                        <span>{userInitial}</span>
-                    )}
-                  </div>
-                </Link>
-              </>
-            ) : (
-              // Login/Register Buttons (Desktop - Kept original button structure)
-              <div className="hidden sm:flex items-center gap-2">
-                <Link
-                  href="/auth/login"
-                  className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 hover:border-blue-400 transition-all duration-300"
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/auth/register"
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-lg hover:bg-blue-700 hover:shadow-md transition-colors duration-300 whitespace-nowrap"
-                >
-                  Register
-                </Link>
-              </div>
-            )}
-          </div>
         </div>
+      </header>
 
-        {/* ROW 2: Location and Secondary Navigation (Desktop Only) */}
-        <div className="hidden md:flex items-center justify-between h-14 px-4 sm:px-6 lg:px-8 bg-gray-50 border-t border-gray-100 rounded-b-xl">
-          
-          {/* Secondary Nav Items */}
-          <div className="flex items-center space-x-8 text-sm">
-            
-            {/* 1. CATEGORY DROPDOWN (Hover Trigger Only) - Uses new clean component */}
-            <CategoryDropdown categories={categories} />
-
-            {/* 2. OTHER UTILITY LINKS */}
-            {secondaryUtilityItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="flex items-center text-gray-600 hover:text-blue-600 transition-colors duration-300 font-medium group relative"
-                >
-                  <Icon className="h-4 w-4 mr-1.5" />
-                  <span className="whitespace-nowrap">{item.label}</span>
-                  {/* Subtle underline for secondary links */}
-                  <span className="absolute bottom-[-2px] left-0 w-full h-0.5 bg-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center"></span>
-                </Link>
-              );
-            })}
-          </div>
-          
-          {/* Location/Delivery Information (Visual emphasis added) */}
-          <div className="flex items-center text-sm font-medium text-gray-700 bg-white p-2 rounded-lg shadow-sm border border-gray-100">
-            <MapPin className="h-5 w-5 mr-1.5 text-red-500" />
-            Deliver to: 
-            <span className="font-semibold text-blue-600 ml-1.5 cursor-pointer hover:underline">
-              {location}
-            </span>
-          </div>
-        </div>
-        
-        {/* Mobile Menu (Animate Presence) - Retains original structure and links */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div
-              className="md:hidden p-4 border-t border-gray-200"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              
-              {/* Mobile Search Bar (Cleaner look) */}
-              <div className="relative mb-4">
-                <input
-                  type="search"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search products..."
-                  className="w-full h-10 py-2 pl-3 pr-10 text-gray-800 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-                  autoComplete="off"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
-                >
-                  <Search className="h-5 w-5" />
+      {/* Mobile Menu Sidebar */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsMobileMenuOpen(false)} className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[150]" />
+            <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25 }} className="fixed inset-y-0 right-0 w-[85%] max-w-sm bg-white z-[160] shadow-2xl p-6 overflow-y-auto" >
+              <div className="flex items-center justify-between mb-8">
+                <span className="text-xl font-black text-blue-600">MENU</span>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                  <X className="w-6 h-6" />
                 </button>
               </div>
-
-              {/* Mobile Nav Links */}
-              <nav className="flex flex-col items-start gap-1 text-gray-700">
+              <div className="space-y-6">
+                <MobileMenuItem icon={ShoppingBag} label="All Products" href="/products" />
+                <MobileMenuItem icon={Store} label="Become a Seller" href="/become-to-seller" />
                 
-                {/* USER ACTION LINKS (Favorites & Cart) - Now visible in the mobile menu */}
-                {userProfile && (
-                    <>
-                        <Link
-                            href={`/profile/${authUser?.id}/favorites`}
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="w-full flex items-center py-2 text-gray-600 hover:text-blue-600 transition-colors duration-300 border-b border-gray-100"
-                        >
-                            <Heart className="h-5 w-5 mr-3 text-red-500" />
-                            My Favorites
-                        </Link>
-                        <Link
-                            href={`/user/${authUser?.id}/shopping-cart`}
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="w-full flex items-center py-2 text-gray-600 hover:text-blue-600 transition-colors duration-300 border-b border-gray-100"
-                        >
-                            <ShoppingCart className="h-5 w-5 mr-3 text-blue-500" />
-                            Shopping Cart
-                        </Link>
-                    </>
-                )}
-
-
-                {/* Primary Nav */}
-                {primaryNavItems.map((item) => (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full flex items-center py-2 hover:text-blue-600 transition-colors duration-300 font-semibold border-b border-gray-100"
-                  >
-                    <span className="w-5 h-5 mr-3"></span> {/* Placeholder for alignment */}
-                    {item.label}
-                  </Link>
-                ))}
-
-                <hr className='w-full border-gray-200 my-1' />
+                <hr className="border-gray-100" />
                 
-                {/* CATEGORIES SECTION (Mobile) */}
-                <div className="w-full mt-2">
-                    <h4 className="text-sm font-bold text-gray-800 mb-2 px-1">Categories</h4>
-                    {categories && categories.length > 0 ? (
-                        categories.map((category) => (
-                            <Link
-                                key={category.id}
-                                href={`/products/category/${category.id}`} 
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className="w-full flex items-center py-2 pl-3 text-sm text-gray-600 hover:text-blue-600 transition-colors duration-300"
-                            >
-                                {category.name}
-                            </Link>
-                        ))
-                    ) : (
-                        <p className="text-sm text-gray-500 pl-3">No categories available.</p>
-                    )}
-                    <Link
-                        href="/categories"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="w-full flex items-center py-2 text-blue-600 font-bold transition-colors duration-300 mt-2 border-t border-gray-100"
-                    >
-                        <ListOrdered className="h-5 w-5 mr-3 text-blue-500" />
-                        View All Categories
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2">Categories</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {categories?.map(cat => (
+                    <Link key={cat.id} href={`/category/${slugify(cat.name)}`} onClick={() => setIsMobileMenuOpen(false)} className="p-3 text-xs font-bold bg-gray-50 rounded-xl text-gray-700">
+                      {cat.name}
                     </Link>
+                  ))}
                 </div>
-
-                <hr className='w-full border-gray-200 my-1' />
-
-                {/* Secondary Utility Nav */}
-                {secondaryUtilityItems.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <Link
-                      key={item.label}
-                      href={item.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="w-full flex items-center py-2 text-gray-600 hover:text-blue-600 transition-colors duration-300 border-b border-gray-100"
-                    >
-                      <Icon className="h-5 w-5 mr-3 text-blue-500" />
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </nav>
-              
-              {/* Mobile Login/Register Buttons (If not authenticated) */}
-              {!userProfile && (
-                <div className="flex items-center gap-3 mt-6">
-                  <Link
-                    href="/auth/login"
-                    className="flex-1 text-center py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-300"
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    href="/auth/register"
-                    className="flex-1 text-center py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-lg hover:bg-blue-700 transition-colors duration-300"
-                  >
-                    Register
-                  </Link>
-                </div>
-              )}
+              </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
+          </>
+        )}
+      </AnimatePresence>
     </div>
+  );
+}
+
+function IconButton({ icon: Icon, href, count, primary, className }) {
+  const content = (
+    <div className={`relative p-2.5 rounded-xl transition-all duration-200 ${primary ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-100 hover:text-blue-600'} ${className}`}>
+      <Icon className="w-5 h-5" />
+      {count > 0 && <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ring-2 ring-white bg-orange-500 text-white">{count}</span>}
+    </div>
+  );
+  return href ? <Link href={href}>{content}</Link> : <button>{content}</button>;
+}
+
+function MobileMenuItem({ icon: Icon, label, href }) {
+  return (
+    <Link href={href} className="flex items-center gap-4 p-4 rounded-2xl hover:bg-blue-50 transition-all border border-transparent hover:border-blue-50">
+      <div className="p-2 bg-gray-50 rounded-lg"><Icon className="w-5 h-5" /></div>
+      <span className="font-bold text-gray-700">{label}</span>
+    </Link>
   );
 }

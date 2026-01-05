@@ -13,7 +13,7 @@ export default function CartSummary({ total, userId }) {
             ${total.toFixed(2)}
           </p>
         </div>
-        <Link href={`/user/${userId}/checkout`}>
+        <Link href="/checkout">
           <button className="px-8 py-4 bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition-all duration-300 transform hover:scale-105 font-semibold flex items-center space-x-2 shadow-lg shadow-orange-500/30">
             <CreditCard className="w-5 h-5" />
             <span>Proceed to Checkout</span>

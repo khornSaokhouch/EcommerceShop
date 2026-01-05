@@ -1,6 +1,6 @@
-import { Toaster } from 'react-hot-toast';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
+import ToastProvider from './components/ToastProvider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -15,46 +15,28 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: 'E-Commerces',
-  description: 'A secure admin dashboard built with Next.js',
+  title: 'TechnoCore | Premium Tech Marketplace',
+  description: 'High-performance gadgets and hardware',
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-gray-50 text-black`}
-        suppressHydrationWarning
-      >
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            className: 'font-sans',
-            duration: 5000,
-            style: {
-              background: '#ffffff',
-              color: '#1f2937',
-              border: '1px solid #e5e7eb',
-              boxShadow:
-                '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-            },
-            success: {
-              duration: 3000,
-              iconTheme: {
-                primary: '#10b981',
-                secondary: '#ffffff',
-              },
-            },
-            error: {
-              iconTheme: {
-                primary: '#ef4444',
-                secondary: '#ffffff',
-              },
-            },
-          }}
-        />
+    <html lang="en" className="scroll-smooth">
+      <body className="font-sans antialiased bg-[#f8fafc] text-slate-900 min-h-screen flex flex-col">
+        {/* Apply font classes on a wrapper div */}
+        <div className={`${geistSans.variable} ${geistMono.variable} data-gptw="" flex flex-col flex-grow`}>
+          {/* Decorative Background Glow */}
+          <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+            <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-blue-50/50 blur-[120px]" />
+            <div className="absolute top-[20%] -right-[10%] w-[30%] h-[30%] rounded-full bg-cyan-50/50 blur-[120px]" />
+          </div>
 
-        {children}
+          {/* Client-only Toaster */}
+          <ToastProvider />
+
+          {/* Main content */}
+          <main className="flex-grow pt-24 ">{children}</main>
+        </div>
       </body>
     </html>
   );

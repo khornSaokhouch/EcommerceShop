@@ -56,13 +56,6 @@ export const request = async (url, method = 'POST', data = {}, customConfig = {}
     });
     return response.data; // Just return the data
   } catch (error) {
-      if (error.response?.status !== 404) {
-      console.error("API response error:", {
-        status: error.response?.status,
-        data: error.response?.data,
-        message: error.message,
-      });
-    }
-    throw error;
+    throw error; // Just re-throw the error silently
   }
 };
