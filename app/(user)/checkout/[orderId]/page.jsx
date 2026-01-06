@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useParams } from "next/navigation";
-import { useShopOrderStore } from "../../../../store/useShopOrder";
+import { useShopOrderStore } from "../../../stores/useShopOrder";
 
 export default function OrderConfirmationPage() {
   const params = useParams();
