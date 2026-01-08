@@ -9,14 +9,6 @@ const nextConfig = {
       { protocol: 'https', hostname: 'f005.backblazeb2.com', pathname: '/file/laravel-images-b2/**' },
     ],
   },
-  experimental: {
-    // Adding variations ensures the dev server catches the request correctly
-    allowedDevOrigins: ['10.1.86.72', '10.1.86.72:3000'],
-    
-    serverActions: {
-      allowedOrigins: ['10.1.86.72:3000', 'localhost:3000'],
-    },
-  },
 };
 
 export default nextConfig;
