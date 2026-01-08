@@ -10,7 +10,7 @@ import Product from './components/user/Products';
 export default function HomePage() {
     return (
         <div className="min-h-screen bg-[#f8fafc]">
-            <Navbar />
+           <div className="flex-grow pt-24 "> <Navbar /></div>
 
             {/* 1. HERO SECTION - Balanced Padding */}
             <section className="relative lg:pb-32 overflow-hidden">

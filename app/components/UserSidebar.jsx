@@ -17,6 +17,7 @@ import {
   AlertTriangle,
   Loader2,
   MessageCircle,
+  Users,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -115,6 +116,7 @@ export default function UserSidebar() {
     { name: "Edit Profile", href: "/edit-profile", icon: Edit },
     { name: "Orders", href: "/profile/orders", icon: Package },
     { name: "Favorites", href: "/favorites", icon: Heart },
+    { name: "Following", href: "/profile/following", icon: Users },
     { name: "Addresses", href: "/addresses", icon: Home },
     { name: "Security", href: "/security", icon: Shield },
   ];

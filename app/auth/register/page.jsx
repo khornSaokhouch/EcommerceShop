@@ -4,23 +4,19 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../../stores/authStore';
 import Link from 'next/link';
-import { User, Mail, Lock, Phone, Loader2, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Lock, Phone, Loader2, Eye, EyeOff, ShieldCheck, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { motion } from 'framer-motion'; 
+import { motion } from 'framer-motion';
 
-// Logo Icon with a clean, consistent gradient (Aligned with LoginPage's Indigo accent)
-const TechLogoIcon = (props) => (
-  <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <defs>
-      <linearGradient id="registerLogoGradient" x1="12" y1="20" x2="28" y2="20" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#0EA5E9" /> {/* Sky-500 */}
-        <stop offset="1" stopColor="#4F46E5" /> {/* Indigo-600 */} {/* DEEPER ACCENT */}
-      </linearGradient>
-    </defs>
-    <path d="M12 10H28" stroke="url(#registerLogoGradient)" strokeWidth="3.5" strokeLinecap="round" />
-    <path d="M20 10V30" stroke="url(#registerLogoGradient)" strokeWidth="3.5" strokeLinecap="round" />
-    <path d="M16 30C16 27.7909 17.7909 26 20 26C22.2091 26 24 27.7909 24 30" stroke="url(#registerLogoGradient)" strokeWidth="3.5" strokeLinecap="round" />
-  </svg>
+// TechnoCore Consistent Logo
+const TechLogoIcon = () => (
+  <div className="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl shadow-lg shadow-blue-200">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M7 8L3 12L7 16" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M17 8L21 12L17 16" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M14 4L10 20" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  </div>
 );
 
 export default function RegisterPage() {
@@ -35,9 +31,9 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // --- KEEPING YOUR ORIGINAL FUNCTION LOGIC ---
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
     if (password !== confirmPassword) {
       toast.error('Passwords do not match.');
       return;
@@ -46,7 +42,6 @@ export default function RegisterPage() {
       toast.error('Password must be at least 8 characters long.');
       return;
     }
-  
     try {
       await register({
         name,
@@ -55,173 +50,146 @@ export default function RegisterPage() {
         password,
         password_confirmation: confirmPassword,
       });
-  
-      toast.success('Registration successful! Redirecting to login...');
-      
-      setTimeout(() => {
-        router.push('/auth/login');
-      }, 500);
+      toast.success('Registration successful!');
+      setTimeout(() => router.push('/auth/login'), 500);
     } catch (err) {
-      toast.error(err.message || 'Registration failed. Please try again.');
+      toast.error(err.message || 'Registration failed.');
     }
-  };
-  
-  // Animation variants for the card (aligned with Login scale animation)
-  const cardVariants = {
-    hidden: { opacity: 0, scale: 0.95 }, 
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: "easeOut" } }, 
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4 font-sans text-gray-800"> {/* Clean background */}
+    <div className="h-screen w-full bg-[#f8fafc] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Blurs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-[5%] -right-[5%] w-[35%] h-[35%] rounded-full bg-blue-50 blur-[100px]" />
+        <div className="absolute -bottom-[5%] -left-[5%] w-[35%] h-[35%] rounded-full bg-cyan-50 blur-[100px]" />
+      </div>
+
       <motion.div 
-        className="w-full max-w-md p-8 sm:p-10 bg-white rounded-2xl shadow-xl space-y-5 border border-gray-100" // Updated card size and shadow
-        initial="hidden"
-        animate="visible"
-        variants={cardVariants}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="w-full max-w-md relative z-10"
       >
-        
-        {/* Header */}
-        <div className="text-center mb-6">
-          <Link href="/" className="inline-flex items-center justify-center gap-2 mb-2">
-            <TechLogoIcon className="h-10 w-10" /> {/* Slightly larger logo */}
-            <span className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-sky-500 to-indigo-600 text-transparent bg-clip-text">
-              E-COMMERCES
-            </span>
-          </Link>
-          <h2 className="text-2xl font-bold text-gray-800 mt-4">Create your account</h2>
-          <p className="text-gray-500 text-sm mt-1">Join us to explore amazing products.</p>
-        </div>
+        <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-blue-900/5 border border-slate-100 p-6 sm:p-10">
+          
+          {/* Header - Compact */}
+          <div className="text-center mb-6">
+            <div className="flex justify-center mb-4">
+              <Link href="/"><TechLogoIcon /></Link>
+            </div>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Join the Core</h2>
+            <p className="text-slate-400 text-xs mt-1 font-medium">Initialize your hardware unit membership.</p>
+          </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4"> 
-
-          {/* Full Name (Refined Input Style) */}
-          <div>
-            <label htmlFor="name" className="sr-only">Full Name</label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" /> 
+          <form onSubmit={handleSubmit} className="space-y-3">
+            {/* Full Name */}
+            <div className="relative group">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 w-4 h-4 transition-colors" />
               <input
-                id="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Full Name" 
-                className="w-full py-3 pl-10 pr-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder-gray-400 text-sm bg-white" // Taller padding, rounded-xl, bg-white
+                placeholder="Full Name"
+                className="w-full py-3.5 pl-11 pr-4 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all outline-none text-slate-900"
                 required
                 disabled={loading}
               />
             </div>
-          </div>
 
-          {/* Email (Refined Input Style) */}
-          <div>
-            <label htmlFor="email" className="sr-only">Email</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" /> 
+            {/* Email */}
+            <div className="relative group">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 w-4 h-4 transition-colors" />
               <input
-                id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email Address"
-                className="w-full py-3 pl-10 pr-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder-gray-400 text-sm bg-white" // Taller padding, rounded-xl, bg-white
+                className="w-full py-3.5 pl-11 pr-4 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all outline-none text-slate-900"
                 required
                 disabled={loading}
               />
             </div>
-          </div>
 
-          {/* Phone Number (Refined Input Style) */}
-          <div>
-            <label htmlFor="phone_number" className="sr-only">Phone Number</label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" /> 
+            {/* Phone */}
+            <div className="relative group">
+              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 w-4 h-4 transition-colors" />
               <input
-                id="phone_number"
                 type="tel"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="Phone Number (e.g., +1234567890)"
-                className="w-full py-3 pl-10 pr-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder-gray-400 text-sm bg-white" // Taller padding, rounded-xl, bg-white
+                placeholder="Phone Number"
+                className="w-full py-3.5 pl-11 pr-4 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all outline-none text-slate-900"
                 required
                 disabled={loading}
               />
             </div>
-          </div>
 
-          {/* Password (Refined Input Style) */}
-          <div>
-            <label htmlFor="password" className="sr-only">Password</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" /> 
+            {/* Password */}
+            <div className="relative group">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 w-4 h-4 transition-colors" />
               <input
-                id="password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password (min. 8 characters)"
-                className="w-full py-3 pl-10 pr-10 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder-gray-400 text-sm bg-white" // Taller padding, rounded-xl, bg-white
+                placeholder="Security Key (min. 8)"
+                className="w-full py-3.5 pl-11 pr-12 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all outline-none text-slate-900"
                 required
                 disabled={loading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-blue-500 transition-colors text-sm cursor-pointer"
-                disabled={loading}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />} 
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-          </div>
 
-          {/* Confirm Password (Refined Input Style) */}
-          <div>
-            <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" /> 
+            {/* Confirm Password */}
+            <div className="relative group pb-2">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 w-4 h-4 transition-colors" />
               <input
-                id="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm Password"
-                className="w-full py-3 pl-10 pr-10 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder-gray-400 text-sm bg-white" // Taller padding, rounded-xl, bg-white
+                placeholder="Verify Key"
+                className="w-full py-3.5 pl-11 pr-12 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all outline-none text-slate-900"
                 required
                 disabled={loading}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-blue-500 transition-colors text-sm cursor-pointer"
-                disabled={loading}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
               >
-                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />} 
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full h-14 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-2xl font-bold text-xs uppercase tracking-widest shadow-xl shadow-blue-200 hover:shadow-blue-400 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+            >
+              {loading ? (
+                <Loader2 className="animate-spin h-5 w-5" />
+              ) : (
+                <>Create Unit <ArrowRight size={16} /></>
+              )}
+            </button>
+          </form>
+
+          {/* Footer Link */}
+          <div className="mt-8 text-center">
+            <p className="text-xs font-medium text-slate-400">
+              Returning user?{' '}
+              <Link href="/auth/login" className="font-black text-blue-600 hover:text-blue-700 uppercase tracking-tighter">
+                Authorize Session
+              </Link>
+            </p>
           </div>
-
-          {/* Submit (Refined Button Style) */}
-          <motion.button
-            type="submit"
-            disabled={loading}
-            className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-sky-500 to-indigo-600 text-white py-3 rounded-xl hover:shadow-lg hover:shadow-blue-500/50 disabled:opacity-60 transition font-semibold text-base focus:outline-none focus:ring-4 focus:ring-blue-200 mt-6"
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-          >
-            {loading ? <Loader2 className="animate-spin h-5 w-5" /> : null} {/* Larger loader for visual impact */}
-            {loading ? 'Creating Account...' : 'Create Account'}
-          </motion.button>
-        </form>
-
-        {/* Sign in link */}
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Already have an account?{' '}
-          <Link href="/auth/login" className="font-semibold text-blue-600 hover:text-blue-700 transition">
-            Log in here
-          </Link>
-        </p>
+        </div>
       </motion.div>
     </div>
   );

@@ -35,7 +35,7 @@ export default function RootLayout({ children }) {
           <ToastProvider />
 
           {/* Main content */}
-          <main className="flex-grow pt-24 ">{children}</main>
+          <main >{children}</main>
         </div>
       </body>
     </html>

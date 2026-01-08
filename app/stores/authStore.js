@@ -20,7 +20,7 @@ export const useAuthStore = create(
         set({ loading: true, error: null, otpSent: false });
 
         try {
-          const res = await request("/auth/login", "POST", { login, password });
+          const res = await request("/login", "POST", { login, password });
 
           // OTP response
           if (res?.user_id && !res?.token) {
@@ -78,7 +78,7 @@ export const useAuthStore = create(
         set({ loading: true, error: null });
 
         try {
-          const res = await request("/auth/register", "POST", {
+          const res = await request("/register", "POST", {
             name,
             email,
             password,
