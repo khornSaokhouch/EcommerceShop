@@ -13,8 +13,10 @@ import {
   ShieldCheck,
   ArrowUpRight,
   ChevronLeft,
+  MessageCircle,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import Link from "next/link";
 
 import { useCompanyInfoStore } from "../../../stores/useCompanyInfoStore";
 import { useProductStore } from "../../../stores/useProductStore";
@@ -24,16 +26,8 @@ import ProductCard from "../../../components/user/ProductCard";
 
 export default function StoreProductsPage() {
   const { slug } = useParams();
-  const {
-    companies,
-    fetchCompanies,
-    loading: storeLoading,
-  } = useCompanyInfoStore();
-  const {
-    products,
-    fetchProductsByStore,
-    loading: productLoading,
-  } = useProductStore();
+  const { companies, fetchCompanies, loading: storeLoading } = useCompanyInfoStore();
+  const { products, fetchProductsByStore, loading: productLoading } = useProductStore();
   const userId = useUserStore((state) => state.user?.id);
   const { favourites, addFavourite, removeFavourite } = useFavouritesStore();
 
@@ -41,22 +35,13 @@ export default function StoreProductsPage() {
   const [isLoadingFav, setIsLoadingFav] = useState(false);
 
   const slugify = (text) =>
-    text
-      ?.toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-");
+    text?.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
 
-  useEffect(() => {
-    fetchCompanies();
-  }, [fetchCompanies]);
+  useEffect(() => { fetchCompanies(); }, [fetchCompanies]);
 
   useEffect(() => {
     if (!slug || !Array.isArray(companies)) return;
-    const found = companies.find(
-      (c) => c.slug === slug || slugify(c.company_name) === slug
-    );
+    const found = companies.find((c) => c.slug === slug || slugify(c.company_name) === slug);
     setStore(found || null);
     if (found?.id) fetchProductsByStore(found.id);
   }, [slug, companies, fetchProductsByStore]);
@@ -65,9 +50,7 @@ export default function StoreProductsPage() {
     if (!userId) return toast.error("Please login to manage favourites.");
     setIsLoadingFav(true);
     try {
-      const favRecord = favourites?.find(
-        (fav) => fav?.product_id === productId
-      );
+      const favRecord = favourites?.find((fav) => fav?.product_id === productId);
       if (!favRecord) {
         await addFavourite({ user_id: userId, product_id: productId });
         toast.success("Added to favourites!");
@@ -75,154 +58,138 @@ export default function StoreProductsPage() {
         await removeFavourite(favRecord.id);
         toast.success("Removed from favourites!");
       }
-    } catch (err) {
-      toast.error("Failed to update favourite.");
-    } finally {
-      setIsLoadingFav(false);
-    }
+    } catch (err) { toast.error("Failed to update favourite."); }
+    finally { setIsLoadingFav(false); }
   };
 
-  if (storeLoading)
-    return <LoadingState message="Syncing Vendor Registry..." />;
-
+  if (storeLoading) return <LoadingState message="Syncing Vendor Registry..." />;
   if (!store && !storeLoading) return <NotFoundState />;
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
-      {/* 1. HERO SECTION */}
-      <section className="relative bg-slate-900 pt-16 pb-32 lg:pt-28 lg:pb-35 overflow-hidden">
-        {/* Pattern */}
-        {/* Texture */}
-        <div className="absolute inset-0 opacity-[0.08] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+    <div className="min-h-screen bg-[#fcfdfe]">
+      {/* 1. HERO SECTION - More Compact */}
+      <section className="relative bg-slate-900 pt-12 pb-24 lg:pt-16 lg:pb-32 overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.05] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0b1220] via-slate-900 to-slate-900" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px]" />
 
-        {/* Depth gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0b1220] via-[#0f172a] to-slate-900" />
-
-        {/* Blue glow */}
-        <div className="absolute -top-32 -right-32 w-[32rem] h-[32rem] bg-blue-500/20 rounded-full blur-[160px]" />
-
-        <div className="container mx-auto px-4 lg:px-8 relative z-10 max-w-7xl">
-          {/* Back Action */}
+        <div className="container mx-auto px-6 relative z-10 max-w-7xl">
           <button
             onClick={() => window.history.back()}
-            className="mb-8 flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest group"
+            className="mb-8 flex items-center gap-2 text-slate-500 hover:text-blue-400 transition-colors text-[10px] font-black uppercase tracking-widest group"
           >
-            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />{" "}
-            Back to Partners
+            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> 
+            Back to Network
           </button>
 
-          <div className="flex flex-col lg:flex-row items-center lg:items-end gap-8 lg:gap-12">
-            {/* Logo Wrapper */}
+          <div className="flex flex-col lg:flex-row items-center lg:items-center gap-8 lg:gap-10">
+            {/* Logo Wrapper - Matching User Profile Style */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="relative w-32 h-32 lg:w-48 lg:h-48 rounded-[2rem] lg:rounded-[3rem] overflow-hidden border-4 border-white shadow-2xl bg-white shrink-0"
+              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+              className="relative w-28 h-28 lg:w-40 lg:h-40 rounded-[32px] lg:rounded-[40px] p-1 bg-gradient-to-tr from-blue-600 to-cyan-400 shadow-2xl shrink-0"
             >
-              {store?.company_image_url ? (
-                <img
-                  src={store.company_image_url}
-                  alt={store.company_name}
-                  className="object-cover w-full h-full"
-                />
-              ) : (
-                <div className="flex items-center justify-center w-full h-full bg-slate-50 text-5xl lg:text-7xl font-black text-blue-600">
-                  {store?.company_name?.charAt(0).toUpperCase()}
-                </div>
-              )}
+              <div className="w-full h-full rounded-[28px] lg:rounded-[36px] overflow-hidden bg-white flex items-center justify-center border-4 border-white">
+                {store?.company_image_url ? (
+                    <img src={store.company_image_url} alt={store.company_name} className="object-cover w-full h-full" />
+                ) : (
+                    <span className="text-4xl lg:text-6xl font-black text-blue-600">{store?.company_name?.charAt(0)}</span>
+                )}
+              </div>
             </motion.div>
 
             {/* Branding Details */}
-            <div className="text-center lg:text-left space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 backdrop-blur-md text-blue-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-blue-500/20 shadow-xl">
-                <ShieldCheck className="w-3.5 h-3.5" /> Official TechnoCore
-                Partner
+            <div className="text-center lg:text-left flex-1">
+              <div className="flex flex-wrap justify-center lg:justify-start items-center gap-3 mb-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 backdrop-blur-md text-blue-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-500/20">
+                  <ShieldCheck className="w-3 h-3" /> Verified Partner
+                </div>
+                {/* CHAT LINK */}
+                <Link 
+                  href={`/chat?vendorId=${store.id}`}
+                  className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10 transition-all backdrop-blur-sm"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" /> Message Vendor
+                </Link>
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-white tracking-tight leading-none">
+
+              <h1 className="text-4xl lg:text-6xl font-black text-white tracking-tighter mb-4 uppercase">
                 {store?.company_name}
               </h1>
-              <p className="text-slate-400 text-sm md:text-lg max-w-2xl leading-relaxed mx-auto lg:mx-0">
-                {store?.description ||
-                  "Leading high-performance technical hardware solutions and professional hardware distribution."}
+              <p className="text-slate-400 text-xs md:text-sm max-w-xl leading-relaxed mx-auto lg:mx-0 font-medium">
+                {store?.description || "High-performance hardware solutions and official distribution services."}
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. FLOATING INFO BAR */}
-      <div className="container mx-auto px-4 lg:px-8 relative z-20 -mt-16 lg:-mt-24 max-w-7xl">
-        <div className="bg-white rounded-[2rem] lg:rounded-[3rem] p-6 lg:p-10 shadow-2xl shadow-blue-900/5 border border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4">
-          <InfoItem
-            icon={MapPin}
-            label="Location"
-            value={`${store?.city || "Global"}, ${store?.country || "Core"}`}
-          />
-          <InfoItem
-            icon={Globe}
-            label="Website"
-            value={store?.website_url ? "Portal Access" : "Not Available"}
-            href={store?.website_url}
-            isLink
-          />
-          <InfoItem
-            icon={Clock}
-            label="Availability"
-            value={store?.business_hours || "09:00 - 18:00 (UTC)"}
-          />
+      {/* 2. COMPACT INFO BAR */}
+      <div className="container mx-auto px-6 relative z-20 -mt-10 lg:-mt-12 max-w-7xl">
+        <div className="bg-white rounded-[32px] p-5 lg:p-8 shadow-xl border border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <InfoItem icon={MapPin} label="Base Hub" value={`${store?.city || "Global"}`} />
+          <InfoItem icon={Globe} label="Digital Portal" value={store?.website_url ? "Portal Active" : "Internal Only"} href={store?.website_url} isLink />
+          <InfoItem icon={Clock} label="Operational" value={store?.business_hours || "09:00 - 18:00"} />
         </div>
 
         {/* 3. PRODUCT LIST SECTION */}
-        <section className="mt-16 lg:mt-24 pb-20">
-          <div className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-4 border-b border-slate-100 pb-6">
-            <div className="text-center sm:text-left">
-              <h2 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight uppercase">
-                Inventory Marketplace
-              </h2>
-              <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-1">
-                Showing {products.length} Professional Units
+        <section className="mt-16 pb-20">
+          <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 px-2">
+            <div>
+              <h2 className="text-xl lg:text-2xl font-black text-slate-900 tracking-tight uppercase">Inventory</h2>
+              <p className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">
+                Active Listings: {products.length} Professional Units
               </p>
             </div>
-            <div className="px-4 py-2 bg-slate-100 rounded-xl text-[10px] font-black text-slate-500 uppercase">
-              Vendor ID: #00{store?.id}
+            <div className="h-px flex-1 mx-8 bg-slate-100 hidden sm:block" />
+            <div className="px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              VOD ID: #{store?.id}
             </div>
           </div>
 
           {productLoading ? (
-            <div className="py-24 text-center">
-              <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                Decrypting Inventory...
-              </p>
-            </div>
-          ) : products.length === 0 ? (
-            <div className="text-center py-24 bg-white rounded-[2rem] border border-dashed border-slate-200">
-              <Package className="w-16 h-16 text-slate-200 mx-auto mb-4" />
-              <p className="font-bold text-slate-400 uppercase tracking-widest text-xs">
-                No active listings from this vendor.
-              </p>
-            </div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-            >
-              {products.map((product) => {
-                const favRecord = favourites?.find(
-                  (fav) => fav?.product_id === product.id
-                );
-                return (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    isFavourite={!!favRecord}
-                    onAddFavourite={() => handleToggleFavourite(product.id)}
-                    disabled={isLoadingFav}
-                  />
-                );
-              })}
-            </motion.div>
-          )}
+  /* --- REFINED COMPACT LOADING --- */
+  <div className="py-12 text-center flex flex-col items-center justify-center">
+    <div className="relative mb-4">
+      <Loader2 className="w-8 h-8 animate-spin text-blue-600 relative z-10" />
+      <div className="absolute inset-0 w-8 h-8 rounded-full border-2 border-blue-100 animate-ping opacity-20" />
+    </div>
+    <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">
+      Syncing Catalog Registry
+    </p>
+  </div>
+) : products.length === 0 ? (
+  /* --- COMPACT EMPTY STATE --- */
+  <div className="py-12 bg-white rounded-[24px] border border-slate-100 flex flex-col items-center justify-center shadow-sm">
+    <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center mb-3 text-slate-300">
+      <Package className="w-5 h-5" />
+    </div>
+    <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+      No Active Units Found
+    </h4>
+  </div>
+) : (
+  /* --- REFINED COMPACT GRID --- */
+  <motion.div
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.4 }}
+    /* gap-4 for mobile, gap-6 for desktop ensures it doesn't look squashed but remains compact */
+    className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6"
+  >
+    {products.map((product) => {
+      const favRecord = favourites?.find((fav) => fav?.product_id === product.id);
+      return (
+        <ProductCard
+          key={product.id}
+          product={product}
+          isFavourite={!!favRecord}
+          onAddFavourite={() => handleToggleFavourite(product.id)}
+          disabled={isLoadingFav}
+        />
+      );
+    })}
+  </motion.div>
+)}
         </section>
       </div>
     </div>
@@ -233,71 +200,39 @@ export default function StoreProductsPage() {
 
 function InfoItem({ icon: Icon, label, value, href, isLink }) {
   const content = (
-    <div className="flex items-center gap-4 group cursor-default">
-      <div className="w-12 h-12 lg:w-14 lg:h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-blue-600 shadow-sm border border-slate-100 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shrink-0">
-        <Icon className="w-5 h-5 lg:w-6 lg:h-6" />
+    <div className="flex items-center gap-4 group cursor-default p-2">
+      <div className="w-11 h-11 bg-slate-50 rounded-2xl flex items-center justify-center text-blue-600 border border-slate-100 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+        <Icon className="w-5 h-5" />
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
-          {label}
-        </p>
+        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">{label}</p>
         <div className="flex items-center gap-1.5">
-          <p className="font-bold text-slate-900 leading-tight truncate">
-            {value}
-          </p>
-          {isLink && (
-            <ArrowUpRight className="w-3.5 h-3.5 text-blue-500 group-hover:translate-x-0.5 transition-transform" />
-          )}
+          <p className="font-bold text-slate-900 text-xs tracking-tight truncate">{value}</p>
+          {isLink && <ArrowUpRight className="w-3 h-3 text-blue-500" />}
         </div>
       </div>
     </div>
   );
-
-  return isLink && href ? (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="hover:opacity-80 transition-opacity"
-    >
-      {content}
-    </a>
-  ) : (
-    content
-  );
+  return isLink && href ? <a href={href} target="_blank" rel="noopener noreferrer">{content}</a> : content;
 }
 
 function LoadingState({ message }) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8fafc]">
-      <Loader2 className="w-12 h-12 animate-spin text-blue-600 mb-6" />
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">
-        {message}
-      </p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#fcfdfe]">
+      <Loader2 className="w-10 h-10 animate-spin text-blue-600 mb-4" />
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{message}</p>
     </div>
   );
 }
 
 function NotFoundState() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] px-4">
-      <div className="max-w-md w-full text-center bg-white p-10 rounded-[2.5rem] shadow-2xl border border-slate-100">
-        <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto mb-8">
-          <ShoppingBag className="w-10 h-10 text-slate-200" />
-        </div>
-        <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">
-          VOD LOG ERROR
-        </h2>
-        <p className="text-slate-500 mb-10 text-sm leading-relaxed font-medium italic">
-          The requested vendor profile is either currently offline or has been
-          removed from the registry.
-        </p>
-        <button
-          onClick={() => window.history.back()}
-          className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl shadow-slate-200 active:scale-95"
-        >
-          Return to Marketplace
-        </button>
+    <div className="min-h-screen flex items-center justify-center bg-[#fcfdfe] px-6">
+      <div className="max-w-sm w-full text-center bg-white p-12 rounded-[32px] shadow-xl border border-slate-100">
+        <ShoppingBag className="w-12 h-12 text-slate-200 mx-auto mb-6" />
+        <h2 className="text-2xl font-black text-slate-900 mb-2 uppercase">Partner Offline</h2>
+        <p className="text-slate-400 mb-8 text-xs font-medium leading-relaxed">This manufacturer registry entry is currently unavailable.</p>
+        <button onClick={() => window.history.back()} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg">Return to Marketplace</button>
       </div>
     </div>
   );

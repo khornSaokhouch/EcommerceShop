@@ -10,76 +10,50 @@ import {
   User,
   Package,
   Heart,
-  Home,
+  MapPin,
   Shield,
   LogOut,
   Edit,
-  AlertTriangle,
+  AlertCircle,
   Loader2,
   MessageCircle,
-  Users,
+  ShoppingCart,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-const ConfirmationModal = ({
-  isOpen,
-  onClose,
-  onConfirm,
-  title,
-  children,
-  confirmText = "Confirm",
-  isConfirming,
-}) => (
-  <div
-    className={`fixed inset-0 z-50 flex justify-center items-center p-4 transition-opacity duration-300 ${
-      isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-    }`}
-  >
-    <div
-      className={`absolute inset-0 bg-white/30 backdrop-blur-sm transition-opacity duration-300 ${
-        isOpen ? "opacity-100" : "opacity-0"
-      }`}
-      onClick={onClose}
-    ></div>
-
-    <div
-      className={`bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm z-10 transform transition-transform duration-300 ${
-        isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0"
-      }`}
-    >
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 flex-shrink-0 rounded-full bg-red-100 flex items-center justify-center">
-          <AlertTriangle className="w-5 h-5 text-red-600" />
-        </div>
-        <h2 className="text-lg font-bold text-gray-800">{title}</h2>
-      </div>
-      <div className="text-sm text-gray-600 mb-6">{children}</div>
-      <div className="flex justify-end gap-3">
-        <button
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, children, isConfirming }) => (
+  <AnimatePresence>
+    {isOpen && (
+      <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <motion.div 
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           onClick={onClose}
-          disabled={isConfirming}
-          className="px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+        />
+        <motion.div 
+          initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+          className="bg-white rounded-[32px] p-8 w-full max-w-sm relative z-10 shadow-2xl border border-slate-100"
         >
-          Cancel
-        </button>
-        <button
-          onClick={onConfirm}
-          disabled={isConfirming}
-          className="flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 transition-colors disabled:bg-red-400"
-        >
-          {isConfirming ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Logging out...
-            </>
-          ) : (
-            confirmText
-          )}
-        </button>
+          <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center mb-4">
+            <AlertCircle className="w-6 h-6 text-red-500" />
+          </div>
+          <h2 className="text-xl font-black text-slate-900 mb-2">{title}</h2>
+          <p className="text-sm text-slate-500 mb-8 leading-relaxed">{children}</p>
+          <div className="grid grid-cols-2 gap-3">
+            <button onClick={onClose} className="py-3 text-sm font-bold text-slate-500 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors">
+              Cancel
+            </button>
+            <button onClick={onConfirm} disabled={isConfirming} className="py-3 text-sm font-bold text-white bg-red-500 rounded-2xl hover:bg-red-600 transition-all flex items-center justify-center gap-2">
+              {isConfirming ? <Loader2 className="w-4 h-4 animate-spin" /> : "Logout"}
+            </button>
+          </div>
+        </motion.div>
       </div>
-    </div>
-  </div>
+    )}
+  </AnimatePresence>
 );
+
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function UserSidebar() {
   const router = useRouter();
@@ -90,82 +64,41 @@ export default function UserSidebar() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
-
-  const handleLogoutClick = () => setIsLogoutModalOpen(true);
+  useEffect(() => { fetchUser(); }, [fetchUser]);
 
   const confirmLogout = async () => {
     setIsLoggingOut(true);
     try {
       await logout();
-      toast.success("You have been logged out.");
+      toast.success("Logged out successfully");
       router.push("/");
-    } catch (error) {
-      toast.error("An error occurred during logout.");
-    } finally {
-      setIsLoggingOut(false);
-      setIsLogoutModalOpen(false);
-    }
+    } catch (error) { toast.error("Logout failed"); }
+    finally { setIsLoggingOut(false); setIsLogoutModalOpen(false); }
   };
 
   const navLinks = [
-    { name: "Profile", href: "/profile", icon: User },
-    { name: "Chats", href: "/chat", icon: MessageCircle },
-    { name: "Edit Profile", href: "/edit-profile", icon: Edit },
-    { name: "Orders", href: "/profile/orders", icon: Package },
-    { name: "Favorites", href: "/favorites", icon: Heart },
-    { name: "Following", href: "/profile/following", icon: Users },
-    { name: "Addresses", href: "/addresses", icon: Home },
+    { name: "Personal Info", href: "/profile", icon: User },
+    { name: "My Messages", href: "/chat", icon: MessageCircle },
+    { name: "Order History", href: "/profile/orders", icon: Package },
+    { name: "Wishlist", href: "/favorites", icon: Heart },
+    { name: "Shopping-cart", href: "/shopping-cart", icon: ShoppingCart },
+    { name: "Addresses", href: "/addresses", icon: MapPin },
     { name: "Security", href: "/security", icon: Shield },
   ];
 
-  if (loading) {
-    return (
-      <aside className="lg:w-80 lg:flex-shrink-0">
-        <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 animate-pulse">
-          <div className="flex items-center gap-4 border-b pb-6 mb-6">
-            <div className="w-16 h-16 bg-gray-200 rounded-full"></div>
-            <div className="flex-1 space-y-2">
-              <div className="h-5 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            </div>
-          </div>
-          <div className="space-y-3">
-            <div className="h-10 bg-gray-100 rounded-lg"></div>
-            <div className="h-10 bg-gray-100 rounded-lg"></div>
-            <div className="h-10 bg-gray-100 rounded-lg"></div>
-          </div>
-        </div>
-      </aside>
-    );
-  }
+  if (loading) return (
+    <div className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 animate-pulse">
+      <div className="h-20 bg-slate-100 rounded-2xl mb-6" />
+      <div className="space-y-4">
+        {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-12 bg-slate-50 rounded-xl" />)}
+      </div>
+    </div>
+  );
 
   if (!user) return null;
 
-  const getUserInitial = (name) => {
-    if (!name) return "U";
-    const parts = name.trim().split(/\s+/);
-    if (parts.length > 1) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    return parts[0][0].toUpperCase();
-  };
-
-  const getCleanImageUrl = (url) => {
-    if (!url) return null;
-    const lastHttpIndex = url.lastIndexOf("http");
-    if (lastHttpIndex > 0) return url.substring(lastHttpIndex);
-    return url;
-  };
-
-  const currentImageUrl = getCleanImageUrl(user.profile_image_url);
-  const userInitial = getUserInitial(user.name);
-
-  const InitialsFallback = ({ size = "w-28 h-28", text = "text-3xl" }) => (
-    <div className={`${size} rounded-full bg-blue-100 flex items-center justify-center text-blue-600 ${text} font-bold mx-auto`}>
-      {userInitial}
-    </div>
-  );
+  const currentImageUrl = user.profile_image_url?.includes('http') ? user.profile_image_url.substring(user.profile_image_url.lastIndexOf('http')) : null;
+  const userInitial = user.name ? user.name[0].toUpperCase() : "U";
 
   return (
     <>
@@ -173,133 +106,97 @@ export default function UserSidebar() {
         isOpen={isLogoutModalOpen}
         onClose={() => setIsLogoutModalOpen(false)}
         onConfirm={confirmLogout}
-        title="Confirm Logout"
-        confirmText="Yes, Logout"
+        title="Signing Out?"
         isConfirming={isLoggingOut}
       >
-        Are you sure you want to end your session and log out?
+        You will need to log back in to access your orders and messages.
       </ConfirmationModal>
 
-      <aside className="lg:w-80 lg:flex-shrink-0">
-        {/* Mobile Header */}
-        <div className="bg-white p-6 rounded-2xl shadow-md lg:hidden">
-          <div className="flex items-center gap-4">
-            <div className="relative w-16 h-16 flex-shrink-0">
-              {currentImageUrl ? (
-                <Image
-                  src={currentImageUrl}
-                  alt="Profile Preview"
-                  fill
-                  sizes="112px"
-                  className="rounded-full object-cover bg-gray-200"
-                />
-              ) : (
-                <InitialsFallback size="w-16 h-16" text="text-xl" />
-              )}
+      <div className="flex flex-col gap-4">
+        {/* User Card */}
+        <div className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-full -mr-10 -mt-10 group-hover:scale-110 transition-transform duration-500" />
+          
+          <div className="relative z-10 flex items-center gap-4">
+            <div className="relative w-16 h-16 rounded-2xl p-0.5 bg-gradient-to-tr from-blue-600 to-cyan-400">
+               <div className="w-full h-full rounded-[14px] overflow-hidden bg-white flex items-center justify-center border-2 border-white relative">
+                 {currentImageUrl ? (
+                    <Image src={currentImageUrl} alt="Profile" fill className="object-cover" />
+                 ) : (
+                    <span className="text-xl font-black text-blue-600">{userInitial}</span>
+                 )}
+               </div>
             </div>
-            <div>
-              <p className="text-sm text-gray-500">{user.email || ""}</p>
+            <div className="flex-1 min-w-0">
+              <h2 className="font-black text-slate-900 truncate">{user.name || "User"}</h2>
+              <p className="text-xs font-medium text-slate-400 truncate">{user.email}</p>
             </div>
           </div>
         </div>
 
-        {/* Desktop Sidebar */}
-        <div className="lg:sticky lg:top-24">
-          <div className="hidden lg:block bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
-            <div className="flex items-center gap-4 border-b border-gray-100 pb-6 mb-6">
-              <div className="relative w-16 h-16 flex-shrink-0">
-                {currentImageUrl ? (
-                  <Image
-                    src={currentImageUrl}
-                    alt="User Profile"
-                    fill
-                    sizes="64px"
-                    className="rounded-full object-cover"
-                  />
-                ) : (
-                  <InitialsFallback size="w-16 h-16" text="text-2xl" />
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h2 className="text-lg font-bold text-gray-800 truncate">{user.name || "User"}</h2>
-                <p className="text-sm text-gray-500 truncate mb-1">{user.email || ""}</p>
-              </div>
-              <Link href="/edit-profile" className="text-gray-400 hover:text-blue-600 transition" title="Edit Profile">
-                <Edit className="w-5 h-5" />
-              </Link>
-            </div>
-
-            {/* Navigation Links */}
-            <nav>
-              <ul className="space-y-2">
-                {navLinks.map((link) => {
-                  const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
-                  return (
-                    <li key={link.name}>
-                      <Link
-                        href={link.href}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all group ${
-                          isActive
-                            ? "bg-blue-50 text-blue-700 border-l-4 border-blue-600 -ml-1"
-                            : "text-gray-700 hover:bg-gray-50"
-                        }`}
-                      >
-                        <link.icon
-                          className={`w-5 h-5 ${
-                            isActive ? "text-blue-600" : "text-gray-400 group-hover:text-blue-600"
-                          }`}
-                        />
-                        <span>{link.name}</span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </nav>
-
-            {/* Logout */}
-            <div className="mt-6 pt-6 border-t border-gray-100">
-              <button
-                onClick={handleLogoutClick}
-                className="flex w-full items-center justify-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold text-white bg-red-600 shadow-md hover:bg-red-700 transition-colors"
-              >
-                <LogOut className="w-5 h-5" />
-                <span>Logout</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile Horizontal Nav */}
-          <nav className="lg:hidden mt-4">
-            <div className="flex space-x-3 overflow-x-auto pb-4 -mx-4 px-4">
-              {navLinks.map((link) => {
-                const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
-                return (
-                  <Link
-                    key={link.name}
-                    href={link.href}
-                    className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-colors ${
-                      isActive
-                        ? "bg-blue-600 text-white shadow-md"
-                        : "bg-white text-gray-700 border border-gray-300 hover:border-blue-400 shadow-sm"
-                    }`}
-                  >
-                    <link.icon className="w-4 h-4" />
-                    {link.name}
-                  </Link>
-                );
-              })}
-              <button
-                onClick={handleLogoutClick}
-                className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap bg-red-600 text-white shadow-md hover:bg-red-700 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                Logout
-              </button>
-            </div>
+        {/* Desktop Nav */}
+        <div className="hidden lg:block bg-white rounded-[32px] p-4 border border-slate-100 shadow-sm">
+          <nav className="space-y-1">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all group ${
+                    isActive 
+                      ? "bg-blue-600 text-white shadow-lg shadow-blue-200" 
+                      : "text-slate-500 hover:bg-slate-50 hover:text-blue-600"
+                  }`}
+                >
+                  <link.icon className={`w-5 h-5 ${isActive ? "text-white" : "text-slate-400 group-hover:text-blue-600"}`} />
+                  {link.name}
+                </Link>
+              );
+            })}
           </nav>
+
+          <div className="mt-4 pt-4 border-t border-slate-50">
+            <button
+              onClick={() => setIsLogoutModalOpen(true)}
+              className="flex w-full items-center gap-3 px-4 py-3.5 rounded-2xl text-[13px] font-bold text-red-500 hover:bg-red-50 transition-colors"
+            >
+              <LogOut className="w-5 h-5" />
+              Sign Out
+            </button>
+          </div>
         </div>
-      </aside>
+
+        {/* Mobile Nav - Sleek Pill Scroller */}
+        <div className="lg:hidden">
+          <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className={`flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${
+                    isActive 
+                      ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100" 
+                      : "bg-white text-slate-600 border-slate-100"
+                  }`}
+                >
+                  <link.icon className="w-4 h-4" />
+                  {link.name}
+                </Link>
+              );
+            })}
+            <button
+              onClick={() => setIsLogoutModalOpen(true)}
+              className="flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold whitespace-nowrap bg-red-50 text-red-600 border border-red-100"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
     </>
   );
 }

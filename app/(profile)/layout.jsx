@@ -3,25 +3,26 @@
 
 import Navbar from '../components/Navbar';
 import UserSidebar from '../components/UserSidebar';
-import Footer from '../components/Footer'; // make sure you have a Footer component
+import Footer from '../components/Footer';
 
 export default function ProfileLayout({ children }) {
   return (
-    <div className="bg-gray-100 min-h-screen flex flex-col">
-      
-      {/* Navbar at the top */}
+    <div className="bg-slate-50 min-h-screen flex flex-col">
+      {/* Fixed Navbar Handling */}
       <Navbar />
 
-      {/* Main content area */}
-      <div className="flex-1 max-w-full mx-auto py-8 px-4 sm:px-6 lg:px-8 w-full">
-        <div className="flex flex-col lg:flex-row lg:gap-8">
+      {/* Main Content Area - pt-28 to account for fixed navbar */}
+      <div className="flex-1 w-full max-w-7xl mx-auto pt-28 px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col lg:flex-row gap-8">
           
-          {/* Sidebar */}
-          <UserSidebar />
+          {/* Sidebar Area */}
+          <div className="lg:w-80 shrink-0">
+            <UserSidebar />
+          </div>
 
-          {/* Main content */}
-          <main className="flex-1 w-full mt-8 lg:mt-0">
-            <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm min-h-[500px]">
+          {/* Main View Area */}
+          <main className="flex-1 min-w-0">
+            <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm min-h-[600px] overflow-hidden">
               {children}
             </div>
           </main>
@@ -29,7 +30,6 @@ export default function ProfileLayout({ children }) {
         </div>
       </div>
 
-      {/* Footer at the bottom */}
       <Footer />
     </div>
   );

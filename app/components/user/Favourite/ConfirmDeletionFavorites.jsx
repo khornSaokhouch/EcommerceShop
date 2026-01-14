@@ -1,58 +1,48 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { AlertTriangle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { AlertCircle, Trash2 } from "lucide-react";
 
-const ConfirmDeletionFavorites = ({ isOpen, onClose, onConfirm, itemName }) => {
-  if (!isOpen) return null;
-
-  const backdropVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-  };
-
-  const modalVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } },
-  };
-
-  return (
-    <motion.div
-      className="fixed inset-0 z-50 flex justify-center items-center bg-black/50"
-      variants={backdropVariants}
-      initial="hidden"
-      animate="visible"
-      exit="hidden"
-    >
-      <motion.div
-        className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full text-center"
-        variants={modalVariants}
-      >
-        <div className="flex items-center justify-center text-red-500 mb-4">
-          <AlertTriangle className="w-6 h-6 mr-2" />
-          <h2 className="text-xl font-bold text-gray-800">Confirm Deletion</h2>
-        </div>
-        <p className="mb-6 text-gray-700">
-          Are you sure you want to delete this {itemName}? This action cannot be
-          undone.
-        </p>
-        <div className="flex justify-center gap-4">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors duration-200"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors duration-200"
-          >
-            Delete
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-};
+const ConfirmDeletionFavorites = ({ isOpen, onClose, onConfirm }) => (
+  <AnimatePresence>
+    {isOpen && (
+      <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        {/* Backdrop */}
+        <motion.div 
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+        />
+        {/* Modal */}
+        <motion.div 
+          initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+          className="bg-white rounded-[32px] p-8 w-full max-w-sm relative z-10 shadow-2xl border border-slate-100 text-center"
+        >
+          <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center mb-4 mx-auto">
+            <Trash2 className="w-7 h-7 text-red-500" />
+          </div>
+          <h2 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">Remove Item?</h2>
+          <p className="text-sm text-slate-500 mb-8 leading-relaxed font-medium">
+            This unit will be removed from your reserved wishlist. You can always add it back later.
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <button 
+              onClick={onClose} 
+              className="py-3.5 text-sm font-bold text-slate-500 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={onConfirm} 
+              className="py-3.5 text-sm font-bold text-white bg-red-500 rounded-2xl hover:bg-red-600 transition-all shadow-lg shadow-red-100"
+            >
+              Remove
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    )}
+  </AnimatePresence>
+);
 
 export default ConfirmDeletionFavorites;

@@ -17,15 +17,17 @@ export const useUserStore = create((set, get) => ({
       set({ error: 'No token found. Please log in.' });
       return null;
     }
-
+  
     set({ loading: true, error: null });
     try {
-      const res = await request('/profile', 'GET', null, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await request('/profile', 'GET'); // interceptor adds token
       set({ user: res.user, loading: false });
       return res.user;
     } catch (err) {
+      if (err.response?.status === 401) {
+        // token invalid, force logout
+        useAuthStore.setState({ token: null, user: null });
+      }
       set({
         error: err.response?.data?.message || err.message || 'Failed to fetch user',
         loading: false,
@@ -33,27 +35,23 @@ export const useUserStore = create((set, get) => ({
       return null;
     }
   },
+  
 
   // -------------------------------
   // Fetch a user by ID
   // -------------------------------
   fetchUserById: async (id) => {
     const token = useAuthStore.getState().token;
-    if (!token) {
-      console.warn("No token found. Cannot fetch user.");
-      return null; // safe fallback instead of throwing
-    }
+    if (!token) return null; // cannot fetch without token
+  
     try {
-      const res = await request(`/users/${id}`, 'GET');
-      set({ user: res });
+      const res = await request(`/users/${id}`, 'GET'); // token automatically added by interceptor
       return res;
     } catch (err) {
-      console.error("Error fetching user:", err);
-      set({ error: err.message || 'Failed to fetch user' });
+      console.error('Error fetching user:', err);
       return null;
     }
   },
-  
 
   // -------------------------------
   // Fetch all users
@@ -64,9 +62,7 @@ export const useUserStore = create((set, get) => ({
 
     set({ loading: true, error: null });
     try {
-      const res = await request('/users', 'GET', null, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await request('/users', 'GET');
       set({ users: res, loading: false });
       return res;
     } catch (err) {
@@ -82,14 +78,12 @@ export const useUserStore = create((set, get) => ({
   // Update user
   // -------------------------------
   updateUser: async (updatedData) => {
-    const token = useAuthStore.getState().token;
     const currentUser = get().user;
     if (!currentUser) throw new Error('No logged-in user');
-    if (!token) throw new Error('No token found. Please log in.');
 
     try {
       const data = await request(`/users/${currentUser.id}`, 'POST', updatedData, {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
+        // Axios automatically handles Content-Type for FormData
       });
 
       set({ user: data });
@@ -111,9 +105,7 @@ export const useUserStore = create((set, get) => ({
 
     set({ loading: true, error: null });
     try {
-      await request(`/users/${id}`, 'DELETE', null, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await request(`/users/${id}`, 'DELETE');
       set((state) => ({
         users: state.users.filter((user) => (user.user_id ?? user.id) !== id),
         loading: false,

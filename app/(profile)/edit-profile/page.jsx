@@ -5,48 +5,52 @@ import { useRouter } from 'next/navigation';
 import { useUserStore } from '../../stores/userStore';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Camera, User, Mail, Phone, Loader2, Save } from 'lucide-react'; // Added Save icon
+import { Camera, User, Mail, Phone, Loader2, Save, X, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
 
-// --- ConfirmationModal (Updated Style) ---
-const ConfirmationModal = ({ isOpen, onClose, onConfirm, isSubmitting }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex justify-center items-center p-4">
-      <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm mx-auto transform transition-all duration-300">
-        <h2 className="text-xl font-bold text-gray-800 mb-2">Confirm Changes</h2>
-        <p className="text-sm text-gray-600 mb-6">
-          Are you sure you want to save these changes to your profile?
-        </p>
-        <div className="flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            disabled={isSubmitting}
-            className="px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={isSubmitting}
-            // Primary button style matching the sidebar accent
-            className="flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-wait"
-          >
-            {isSubmitting ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            ) : (
-                <Save className="w-4 h-4 mr-2" />
-            )}
-            {isSubmitting ? 'Saving...' : 'Yes, Save'}
-          </button>
-        </div>
+// --- Improved ConfirmationModal ---
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, isSubmitting }) => (
+  <AnimatePresence>
+    {isOpen && (
+      <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <motion.div 
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+        />
+        <motion.div 
+          initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+          className="bg-white rounded-[32px] p-8 w-full max-w-sm relative z-10 shadow-2xl border border-slate-100 text-center"
+        >
+          <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-4 mx-auto">
+            <Save className="w-7 h-7 text-blue-600" />
+          </div>
+          <h2 className="text-xl font-black text-slate-900 mb-2">Save Changes?</h2>
+          <p className="text-sm text-slate-500 mb-8 leading-relaxed">
+            Your profile details will be updated across the entire Technocore ecosystem.
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <button 
+              onClick={onClose} 
+              className="py-3.5 text-sm font-bold text-slate-500 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={onConfirm} 
+              disabled={isSubmitting} 
+              className="py-3.5 text-sm font-bold text-white bg-blue-600 rounded-2xl hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-200"
+            >
+              {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Confirm"}
+            </button>
+          </div>
+        </motion.div>
       </div>
-    </div>
-  );
-};
+    )}
+  </AnimatePresence>
+);
 
-// --- EditProfilePage (Updated Style) ---
 export default function EditProfilePage() {
   const router = useRouter();
   const { user, loading, fetchUser, updateUser } = useUserStore();
@@ -56,33 +60,14 @@ export default function EditProfilePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fetch logged-in user on mount
-  useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
+  useEffect(() => { fetchUser(); }, [fetchUser]);
 
-  // Populate form when user is loaded
   useEffect(() => {
     if (user) {
-      setFormData({
-        name: user.name ?? '',
-        phone_number: user.phone_number ?? '',
-        image: null,
-      });
-      // Clear image preview if user object changes
+      setFormData({ name: user.name ?? '', phone_number: user.phone_number ?? '', image: null });
       setImagePreview(null); 
     }
   }, [user]);
-
-  const getUserInitial = (name) => {
-    // Return two initials if possible, e.g., 'JS'
-    if (!name) return 'U';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length > 1) {
-        return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-    }
-    return parts[0].charAt(0).toUpperCase();
-  };
 
   const getCleanImageUrl = (url) => {
     if (!url) return null;
@@ -93,10 +78,9 @@ export default function EditProfilePage() {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === 'image' && files && files[0]) {
+    if (name === 'image' && files?.[0]) {
       const file = files[0];
       setFormData((prev) => ({ ...prev, image: file }));
-      // Revoke the old object URL to prevent memory leaks
       if (imagePreview) URL.revokeObjectURL(imagePreview); 
       setImagePreview(URL.createObjectURL(file));
     } else {
@@ -104,48 +88,39 @@ export default function EditProfilePage() {
     }
   };
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    setIsModalOpen(true);
-  };
-
   const handleConfirmUpdate = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
-
-    const loadingToast = toast.loading('Updating profile...');
+    const loadingToast = toast.loading('Updating your profile...');
 
     const data = new FormData();
     data.append('name', formData.name);
-    // Only append phone_number if it exists/is provided
     if (formData.phone_number) data.append('phone_number', formData.phone_number); 
     if (formData.image) data.append('image', formData.image);
 
     try {
       await updateUser(data);
-      toast.success('Profile updated successfully!', { id: loadingToast });
-      // Clean up the image preview URL after successful upload
+      toast.success('Profile synced successfully!', { id: loadingToast });
       if (imagePreview) URL.revokeObjectURL(imagePreview); 
       setImagePreview(null);
+      setIsModalOpen(false);
     } catch (err) {
-      const errorMessage = err.message || 'Failed to update profile.';
-      toast.error(errorMessage, { id: loadingToast });
+      toast.error(err.message || 'Update failed', { id: loadingToast });
     } finally {
       setIsSubmitting(false);
-      setIsModalOpen(false);
     }
   };
 
   if (loading || !user) {
     return (
-      <div className="bg-white p-8 rounded-xl shadow-lg flex justify-center items-center h-96">
-        <Loader2 className="animate-spin h-8 w-8 text-blue-600" />
+      <div className="flex flex-col justify-center items-center min-h-[400px] gap-4">
+        <Loader2 className="animate-spin h-10 w-10 text-blue-600" />
       </div>
     );
   }
 
   const currentImageUrl = getCleanImageUrl(user.profile_image_url);
-  const userInitial = getUserInitial(user.name);
+  const userInitial = user.name ? user.name[0].toUpperCase() : "U";
 
   return (
     <>
@@ -156,148 +131,115 @@ export default function EditProfilePage() {
         isSubmitting={isSubmitting}
       />
       
-      {/* Main Container - New Shadow Style */}
-      <div className="bg-white p-8 rounded-2xl">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Edit Information</h1>
-        <p className="text-gray-500 mb-8">Update your personal details, including your profile photo.</p>
+      <div className="p-4 sm:p-8">
+        <div className="mb-10">
+            <h1 className="text-2xl font-black text-slate-900 mb-2">Edit Profile</h1>
+            <p className="text-sm font-medium text-slate-500">Manage your identity and public information.</p>
+        </div>
 
-        <form onSubmit={handleFormSubmit} className="space-y-8">
+        <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }} className="space-y-10">
           
-          {/* Profile Photo Section - Increased visual separation */}
-          <div className="p-6 border border-gray-200 rounded-xl bg-gray-50/50">
-            <h3 className="text-xl font-semibold text-gray-800 mb-6 border-b border-gray-100 pb-3">Profile Photo</h3>
-            <div className="flex flex-col sm:flex-row items-center gap-6">
-              
-              <div className="relative w-28 h-28 flex-shrink-0">
-                {/* Profile Image/Fallback */}
-                {imagePreview || currentImageUrl ? (
-                  <Image
-                    src={imagePreview || currentImageUrl}
-                    alt="Profile Preview"
-                    fill
-                    sizes="112px"
-                    className="rounded-full object-cover bg-gray-200"
-                  />
-                ) : (
-                  <div className="w-28 h-28 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-3xl">
-                    {userInitial}
-                  </div>
-                )}
-                
-                {/* Upload Button - Refined Style */}
-                <label
-                  htmlFor="image-upload"
-                  className="absolute -bottom-1 -right-1 flex items-center justify-center w-10 h-10 bg-white border border-gray-300 rounded-full text-blue-600 shadow-md cursor-pointer hover:bg-gray-100 transition-colors"
-                  title="Upload New Photo"
-                >
-                  <Camera className="w-5 h-5" />
-                  <input
-                    id="image-upload"
-                    type="file"
-                    name="image"
-                    accept="image/*"
-                    onChange={handleChange}
-                    className="hidden"
-                  />
-                </label>
+          {/* Avatar Upload Section */}
+          <div className="flex flex-col sm:flex-row items-center gap-8 p-8 bg-slate-50/50 rounded-[32px] border border-slate-100">
+            <div className="relative group">
+              <div className="relative w-32 h-32 rounded-[40px] p-1 bg-gradient-to-tr from-blue-600 to-cyan-400 shadow-xl shadow-blue-500/10">
+                <div className="w-full h-full rounded-[36px] overflow-hidden bg-white flex items-center justify-center border-4 border-white relative">
+                  {imagePreview || currentImageUrl ? (
+                    <Image
+                      src={imagePreview || currentImageUrl}
+                      alt="Avatar"
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <span className="text-4xl font-black text-blue-600">{userInitial}</span>
+                  )}
+                </div>
               </div>
               
-              <div className="flex-1 text-center sm:text-left">
-                <p className="text-sm text-gray-500 max-w-sm">
-                  JPG or PNG only. Maximum file size 5MB. Uploading a new image will replace the current one.
-                </p>
-                {imagePreview && (
-                    <span className="mt-2 inline-block text-xs text-green-600 font-medium">
-                        New image selected. Click 'Save Changes' to apply.
-                    </span>
-                )}
-              </div>
+              <label
+                htmlFor="image-upload"
+                className="absolute -bottom-2 -right-2 flex items-center justify-center w-12 h-12 bg-white text-blue-600 rounded-2xl shadow-xl border border-slate-100 cursor-pointer hover:bg-blue-600 hover:text-white transition-all group-active:scale-90"
+              >
+                <Camera className="w-6 h-6" />
+                <input id="image-upload" type="file" name="image" accept="image/*" onChange={handleChange} className="hidden" />
+              </label>
             </div>
-          </div>
-
-          {/* Account Details Section */}
-          <div className="p-6 border border-gray-200 rounded-xl bg-gray-50/50">
-            <h3 className="text-xl font-semibold text-gray-800 mb-6 border-b border-gray-100 pb-3">Personal Details</h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
-              {/* Full Name */}
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    // Clean input focus style
-                    className="w-full py-2.5 pl-10 pr-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
-                    required
-                  />
+            <div className="text-center sm:text-left space-y-2">
+              <h4 className="font-bold text-slate-900">Profile Picture</h4>
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">
+                PNG, JPG or WEBP <br/> Max 5MB file size
+              </p>
+              {imagePreview && (
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[10px] font-black uppercase">New Photo Ready</span>
                 </div>
-              </div>
-
-              {/* Email (Disabled) */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address (Cannot be changed)
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="email"
-                    id="email"
-                    value={user.email}
-                    disabled
-                    // Disabled input style
-                    className="w-full py-2.5 pl-10 pr-3 border border-gray-200 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
-                  />
-                </div>
-              </div>
-              
-              {/* Phone Number */}
-              <div>
-                <label htmlFor="phone_number" className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number (Optional)
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="tel"
-                    id="phone_number"
-                    name="phone_number"
-                    value={formData.phone_number}
-                    onChange={handleChange}
-                    placeholder="e.g., +1 555-1234"
-                    // Clean input focus style
-                    className="w-full py-2.5 pl-10 pr-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
-                  />
-                </div>
-              </div>
-
+              )}
             </div>
           </div>
 
-          {/* Buttons */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+          {/* Form Fields */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-2">
+              <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Full Name</label>
+              <div className="relative group">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full py-4 pl-12 pr-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-800 focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all outline-none"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Email Address</label>
+              <div className="relative opacity-60">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                  type="email"
+                  value={user.email}
+                  disabled
+                  className="w-full py-4 pl-12 pr-4 bg-slate-100 border border-slate-200 rounded-2xl text-sm font-bold text-slate-500 cursor-not-allowed"
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Phone Number</label>
+              <div className="relative group">
+                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
+                <input
+                  type="tel"
+                  name="phone_number"
+                  value={formData.phone_number}
+                  onChange={handleChange}
+                  placeholder="+1 234 567 890"
+                  className="w-full py-4 pl-12 pr-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-800 focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all outline-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center justify-end gap-4 pt-8 border-t border-slate-50">
             <Link
               href="/profile"
-              // Secondary button style: White/Outline
-              className="px-6 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-8 py-4 text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors"
             >
               Cancel
             </Link>
             <button
               type="submit"
-              // Primary action button style: Solid Blue/Indigo
-              className="flex items-center justify-center px-6 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+              className="flex items-center justify-center gap-2 px-10 py-4 bg-blue-600 text-white rounded-[20px] font-black text-sm shadow-xl shadow-blue-200 hover:bg-blue-700 hover:-translate-y-0.5 active:translate-y-0 transition-all"
             >
-              <Save className="w-4 h-4 mr-2" />
-              Save Changes
+              <Save className="w-4 h-4" />
+              Update Profile
             </button>
           </div>
         </form>

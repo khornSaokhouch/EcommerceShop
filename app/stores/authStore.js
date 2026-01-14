@@ -1,7 +1,7 @@
-import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import { request } from "../util/request";
-import { useUserStore } from "./userStore";
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { request } from '../util/request';
+import { useUserStore } from './userStore';
 
 export const useAuthStore = create(
   persist(
@@ -13,30 +13,34 @@ export const useAuthStore = create(
       otpSent: false,
       otpUserId: null, // store user_id after OTP is sent
 
-      // ------------------------------
+      // -------------------------------
       // Login (email or phone) → sends OTP
-      // ------------------------------
+      // -------------------------------
       login: async (login, password) => {
         set({ loading: true, error: null, otpSent: false });
 
         try {
-          const res = await request("/login", "POST", { login, password });
+          const res = await request('/login', 'POST', { login, password });
 
-          // OTP response
+          // -------------------------------
+          // OTP flow commented
+          // -------------------------------
+          /*
           if (res?.user_id && !res?.token) {
             set({ otpSent: true, otpUserId: res.user_id });
             return { otpSent: true, user_id: res.user_id };
           }
+          */
 
-          // Normal login with token
-          const user = res?.user;
-          const token = res?.token;
-          if (!user || !token) throw new Error("Invalid login response.");
+          const user = res?.user || res?.data?.user || res;
+          const token = res?.token || res?.data?.token;
+
+          if (!user || !token) throw new Error('Invalid login response.');
 
           set({ user, token, otpSent: false });
           return { user, token };
         } catch (err) {
-          const msg = err?.response?.data?.message || err.message || "Login failed";
+          const msg = err?.response?.data?.message || err.message || 'Login failed';
           set({ error: msg });
           throw new Error(msg);
         } finally {
@@ -44,26 +48,26 @@ export const useAuthStore = create(
         }
       },
 
-      // ------------------------------
+      // -------------------------------
       // Verify OTP
-      // ------------------------------
+      // -------------------------------
       verifyOtp: async (otp) => {
         set({ loading: true, error: null });
 
         try {
-          const res = await request("/verify-otp", "POST", {
+          const res = await request('/verify-otp', 'POST', {
             user_id: get().otpUserId,
             otp,
           });
 
           const user = res?.user;
           const token = res?.token;
-          if (!user || !token) throw new Error("OTP verification failed.");
+          if (!user || !token) throw new Error('OTP verification failed.');
 
           set({ user, token, otpSent: false, otpUserId: null });
           return { user, token };
         } catch (err) {
-          const msg = err?.response?.data?.error || err.message || "OTP verification failed";
+          const msg = err?.response?.data?.error || err.message || 'OTP verification failed';
           set({ error: msg });
           throw new Error(msg);
         } finally {
@@ -71,14 +75,14 @@ export const useAuthStore = create(
         }
       },
 
-      // ------------------------------
+      // -------------------------------
       // Register
-      // ------------------------------
+      // -------------------------------
       register: async ({ name, email, password, password_confirmation, phone_number }) => {
         set({ loading: true, error: null });
 
         try {
-          const res = await request("/register", "POST", {
+          const res = await request('/register', 'POST', {
             name,
             email,
             password,
@@ -86,14 +90,13 @@ export const useAuthStore = create(
             phone_number,
           });
 
-          // Fallback if backend doesn't return user/token
           const user = res?.user ?? { name, email, phone_number };
           const token = res?.token ?? null;
 
           set({ user, token });
           return { user, token };
         } catch (err) {
-          const msg = err?.response?.data?.message || err.message || "Registration failed";
+          const msg = err?.response?.data?.message || err.message || 'Registration failed';
           set({ error: msg });
           throw new Error(msg);
         } finally {
@@ -101,63 +104,39 @@ export const useAuthStore = create(
         }
       },
 
-      // ------------------------------
+      // -------------------------------
       // Login with existing token
-      // ------------------------------
+      // -------------------------------
       loginWithToken: async (token) => {
         set({ loading: true, error: null });
 
         try {
           set({ token });
-          const res = await request("/profile", "GET", null, {
+          const res = await request('/profile', 'GET', null, {
             headers: { Authorization: `Bearer ${token}` },
           });
 
-          if (!res?.user) throw new Error("Failed to fetch user data.");
+          if (!res?.user) throw new Error('Failed to fetch user data.');
           set({ user: res.user });
           return res.user;
         } catch (err) {
-          set({ user: null, token: null, error: err.message || "Login with token failed" });
+          set({ user: null, token: null, error: err.message || 'Login with token failed' });
           throw err;
         } finally {
           set({ loading: false });
         }
       },
 
-      telegramLogin: async (data) => {
-        set({ loading: true, error: null });
-      
-        try {
-          const res = await request(
-            'http://localhost:5000/auth/telegram/callback', 
-            'POST', 
-            data
-          );
-      
-          set({ user: res.user, token: res.token });
-      
-          localStorage.setItem('token', res.token);
-      
-          return res;
-        } catch (err) {
-          set({ error: err.message });
-          throw err;
-        } finally {
-          set({ loading: false });
-        }
-      },
-      
-
-      // ------------------------------
+      // -------------------------------
       // Logout
-      // ------------------------------
+      // -------------------------------
       logout: async () => {
         try {
-          await request("/logout", "POST", null, {
+          await request('/logout', 'POST', null, {
             headers: { Authorization: `Bearer ${get().token}` },
           });
         } catch (err) {
-          console.warn("Logout API failed, logging out client-side.", err);
+          console.warn('Logout API failed, logging out client-side.', err);
         }
 
         set({ user: null, token: null, otpSent: false, otpUserId: null });
@@ -165,9 +144,13 @@ export const useAuthStore = create(
       },
 
       getToken: () => get().token,
+
+      // Helpers to manually set token/user (needed for handleSubmit)
+      setToken: (token) => set({ token }),
+      setUser: (user) => set({ user }),
     }),
     {
-      name: "auth-storage",
+      name: 'auth-storage',
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({ token: state.token, user: state.user }),
     }

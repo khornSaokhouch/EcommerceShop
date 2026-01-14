@@ -12,13 +12,7 @@ const foodDeliveryPartners = [
   { id: 5, name: 'WowNow', logo: '/logos/wownow_logo.png' },
 ];
 
-// const courierPartners = [
-//   { id: 6, name: 'OTO Express', logo: '/logos/oto_express_logo.png' },
-//   { id: 7, name: 'J&T Express', logo: '/logos/jt_express_logo.png' },
-//   { id: 8, name: 'FedEx Cambodia', logo: '/logos/fedex_cambodia_logo.png' },
-//   { id: 9, name: 'Loda Express', logo: '/logos/loda_express_logo.png' },
-//   { id: 10, name: 'VET Express', logo: '/logos/vet_express_logo.png' },
-// ];
+
 
 const mockPartners = [...foodDeliveryPartners];
 // , ...courierPartners
