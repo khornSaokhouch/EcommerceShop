@@ -4,7 +4,7 @@
 @import "tailwindcss";
 
 body {
-  font-family: 'Battambang', 'Noto Sans Khmer', sans-serif;
+  font-family: 'Battambang';
 }
 
 /* :root {

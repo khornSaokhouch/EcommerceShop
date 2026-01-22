@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { request } from '../util/request';
 
+
 export const usePaymentTypeStore = create((set, get) => ({
   paymentTypes: [],
   currentPaymentType: null,

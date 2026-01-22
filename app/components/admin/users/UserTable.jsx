@@ -1,83 +1,59 @@
-// app/admin/users/components/UserTable.jsx
-"use client"
+import { Edit, Trash2, Loader2 } from "lucide-react";
+import { RoleBadge } from "./RoleBadge";
 
-import { ShieldAlert, Users } from "lucide-react"
-import { UserTableRow } from "./UserTableRow"
+export function UserTable({ users, loading, startIndex, onEdit, onDelete }) {
+  if (loading) return <TableLoader />;
 
-// Internal components for different table states
-const LoadingState = () => (
-  <tr>
-    <td colSpan="4" className="text-center py-12">
-      <div className="flex flex-col items-center justify-center gap-3 text-gray-500">
-        <div className="animate-spin h-8 w-8 border-2 border-gray-300 border-t-blue-600 rounded-full"></div>
-        <p className="font-medium">Loading users...</p>
-      </div>
-    </td>
-  </tr>
-)
-
-const ErrorState = ({ error }) => (
-  <tr>
-    <td colSpan="4" className="text-center py-12">
-      <div className="flex flex-col items-center justify-center gap-3 text-red-500">
-        <ShieldAlert className="w-12 h-12" />
-        <div>
-          <p className="font-semibold text-lg">Error loading users</p>
-          <p className="text-sm text-gray-500">{error}</p>
-        </div>
-      </div>
-    </td>
-  </tr>
-)
-
-const EmptyState = ({ searchTerm }) => (
-  <tr>
-    <td colSpan="4" className="text-center py-12">
-      <div className="flex flex-col items-center justify-center gap-3 text-gray-500">
-        <Users className="w-12 h-12" />
-        <div>
-          <p className="font-semibold text-lg">No users found</p>
-          <p className="text-sm">{searchTerm ? "Try adjusting your search" : "No regular users available"}</p>
-        </div>
-      </div>
-    </td>
-  </tr>
-)
-
-export function UserTable({ users, loading, error, searchTerm, onEdit, onDelete }) {
-  const hasUsers = users.length > 0
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">All Users</h3>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Users className="h-4 w-4" />
-            {users.length} users
-          </div>
-        </div>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Role</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Joined</th>
-              <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left border-collapse">
+        <thead className="bg-slate-50/50">
+          <tr>
+            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest"># ID</th>
+            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Identity Node</th>
+            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Node Protocol</th>
+            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Connection</th>
+            <th className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-50">
+          {users.map((user, index) => (
+            <tr key={user.id} className="hover:bg-slate-50/30 transition-colors group">
+              <td className="px-8 py-5 text-xs font-black text-slate-300">
+                {String(startIndex + index + 1).padStart(2, '0')}
+              </td>
+              <td className="px-8 py-5">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-blue-600 font-black border-2 border-white overflow-hidden shadow-sm">
+                    {user.profile_image_url ? <img src={user.profile_image_url} className="w-full h-full object-cover" /> : user.name[0]}
+                  </div>
+                  <div>
+                    <p className="text-sm font-black text-slate-900 uppercase tracking-tight">{user.name}</p>
+                    <p className="text-[10px] font-bold text-slate-400 tracking-widest uppercase">{user.email}</p>
+                  </div>
+                </div>
+              </td>
+              <td className="px-8 py-5"><RoleBadge role={user.role} /></td>
+              <td className="px-8 py-5">
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{new Date(user.created_at).toLocaleDateString()}</span>
+              </td>
+              <td className="px-8 py-5 text-right">
+                <div className="flex justify-end gap-2">
+                  <button onClick={() => onEdit(user)} className="p-2.5 bg-slate-50 text-slate-400 hover:text-blue-600 hover:bg-white hover:shadow-lg rounded-xl transition-all"><Edit size={16} /></button>
+                  <button onClick={() => onDelete(user)} className="p-2.5 bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-white hover:shadow-lg rounded-xl transition-all"><Trash2 size={16} /></button>
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {loading && <LoadingState />}
-            {!loading && error && <ErrorState error={error} />}
-            {!loading && !error && !hasUsers && <EmptyState searchTerm={searchTerm} />}
-            {!loading && !error && hasUsers && users.map((user, index) => (
-              <UserTableRow key={user.id} user={user} index={index} onEdit={onEdit} onDelete={onDelete} />
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
-  )
+  );
 }
+
+const TableLoader = () => (
+    <div className="p-20 text-center flex flex-col items-center gap-4">
+        <Loader2 className="animate-spin text-blue-600 w-10 h-10" />
+        <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest animate-pulse">Syncing Registry Nodes...</p>
+    </div>
+);

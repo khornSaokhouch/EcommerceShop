@@ -2,318 +2,121 @@
 
 import { useState, useMemo } from "react"
 import Link from "next/link"
-import { motion, AnimatePresence } from "framer-motion"
-import { Edit, Trash2, Archive, Eye, Package, ChevronLeft, ChevronRight, Plus } from "lucide-react"
-import { useParams } from "next/navigation"
-import Image from "next/image"
+import { Edit, Trash2, Eye, Package, ChevronLeft, ChevronRight, ArrowUpRight } from "lucide-react"
+import Image from "next/image";
 
-const CategoriesTable = ({ categories, search, openForm, setDeleteConfirmId, viewMode = "grid" }) => {
-  const { id } = useParams() // Assuming 'id' is for admin/store ID from URL
+const CategoriesTable = ({ categories, search, onEdit, onDelete, viewMode }) => {
   const [currentPage, setCurrentPage] = useState(1)
-  const categoriesPerPage = viewMode === "grid" ? 8 : 7 // Adjusted for potentially better grid layout
+  const itemsPerPage = viewMode === "grid" ? 8 : 10
 
-  const filteredCategories = useMemo(() => {
-    if (!search.trim()) return categories
-    const lowerSearch = search.toLowerCase()
-    return categories.filter((cat) => cat.name.toLowerCase().includes(lowerSearch))
+  const filtered = useMemo(() => {
+    return categories.filter(c => c.name.toLowerCase().includes(search.toLowerCase()))
   }, [categories, search])
 
-  const totalPages = Math.ceil(filteredCategories.length / categoriesPerPage)
+  const totalPages = Math.ceil(filtered.length / itemsPerPage)
+  const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
-  const paginatedCategories = useMemo(() => {
-    const startIndex = (currentPage - 1) * categoriesPerPage
-    const endIndex = startIndex + categoriesPerPage
-    return filteredCategories.slice(startIndex, endIndex)
-  }, [filteredCategories, currentPage, categoriesPerPage])
-
-  const handleNextPage = () => {
-    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))
-  }
-
-  const handlePrevPage = () => {
-    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
-  }
-
-  // Variants for container and individual items animations
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.08, // Subtle delay for items to appear
-      },
-    },
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30, scale: 0.95 },
-    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: "easeOut" } },
-  }
-
-  // --- Category Card for Grid View ---
-  const CategoryCard = ({ category }) => (
-    <motion.div
-      variants={itemVariants}
-      initial="hidden"
-      animate="visible"
-      exit="hidden" // For AnimatePresence in the parent
-      whileHover={{ y: -7, boxShadow: "0 15px 30px rgba(0,0,0,0.15)" }}
-      className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden group hover:shadow-xl transition-all duration-300 relative"
-    >
-      {/* Category Image / Placeholder */}
-      <div className="relative h-44 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center">
-        {category.image_url ? (
-          <Image
-            src={category.image_url}
-            alt={category.name}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-white/80">
-            <Package className="w-14 h-14" />
-            <span className="mt-2 text-sm font-semibold">No Image</span>
-          </div>
-        )}
-        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300"></div>
-
-        {/* Hover Actions */}
-        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={(e) => { e.stopPropagation(); openForm(category); }}
-            className="p-2.5 bg-white/30 backdrop-blur-sm rounded-full text-white hover:bg-white/50 transition-colors shadow-md"
-            title="Edit Category"
-          >
-            <Edit className="w-4 h-4" />
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(category.id); }}
-            className="p-2.5 bg-red-500/70 backdrop-blur-sm rounded-full text-white hover:bg-red-600/80 transition-colors shadow-md"
-            title="Delete Category"
-          >
-            <Trash2 className="w-4 h-4" />
-          </motion.button>
-        </div>
-      </div>
-
-      {/* Category Info */}
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-3">
-          <h3 className="text-xl font-bold text-gray-900 truncate pr-2 leading-tight">
-            {category.name}
-          </h3>
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 shadow-sm">
-            Active
-          </span>
-        </div>
-        {/* <p className="text-sm text-gray-500 mb-4">ID: {category.id}</p> */}
-
-        {/* Action Button */}
-        <Link
-          href={`/admin/category/${category.id}`} // Ensure 'id' for admin is correctly used
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors shadow-md group-hover:shadow-lg"
-        >
-          <Eye className="w-4 h-4" />
-          View Products
-        </Link>
-      </div>
-    </motion.div>
-  )
-
-  // --- Category Table Row for List View ---
-  const CategoryTableRow = ({ category, index }) => (
-    <motion.tr
-      variants={itemVariants}
-      initial="hidden"
-      animate="visible"
-      exit="hidden" // For AnimatePresence in the parent
-      whileHover={{ backgroundColor: "#f9fafb", boxShadow: "0 5px 15px rgba(0,0,0,0.05)" }}
-      className="border-b border-gray-100 transition-all duration-200"
-    >
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm font-medium text-gray-900">#{index + (currentPage - 1) * categoriesPerPage + 1}</div>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200 shadow-sm">
-            {category.image_url ? (
-              <Image
-                src={category.image_url}
-                alt={category.name}
-                width={56}
-                height={56}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400">
-                <Package className="w-6 h-6" />
-              </div>
-            )}
-          </div>
-          <div>
-            <div className="text-base font-semibold text-gray-900">{category.name}</div>
-            {/* <div className="text-xs text-gray-500">ID: {category.id}</div> */}
-          </div>
-        </div>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 shadow-sm">
-          Active
-        </span>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-right">
-        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Link
-            href={`/admin/${id}/category/${category.id}`}
-            className="p-2 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-            title="View Products"
-          >
-            <Eye className="w-4 h-4" />
-          </Link>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => openForm(category)}
-            className="p-2 rounded-lg text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors"
-            title="Edit Category"
-          >
-            <Edit className="w-4 h-4" />
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setDeleteConfirmId(category.id)}
-            className="p-2 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
-            title="Delete Category"
-          >
-            <Trash2 className="w-4 h-4" />
-          </motion.button>
-        </div>
-      </td>
-    </motion.tr>
-  )
-
-  // --- No Categories Found State ---
-  if (filteredCategories.length === 0) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 20 }}
-        className="p-12 text-center bg-white rounded-2xl shadow-inner min-h-[400px] flex flex-col items-center justify-center"
-      >
-        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6 border border-gray-200">
-          <Archive className="w-10 h-10 text-gray-400" />
-        </div>
-        <h3 className="text-2xl font-bold text-gray-900 mb-3">No Categories Found</h3>
-        <p className="text-gray-600 mb-8 max-w-md">
-          {search
-            ? "Your search for '"+ search +"' did not match any categories. Try adjusting your search terms."
-            : "It looks like you haven't created any categories yet. Let's get started!"}
-        </p>
-        <motion.button
-          whileHover={{ scale: 1.03, boxShadow: "0 8px 16px rgba(37, 99, 235, 0.3)" }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => openForm()}
-          className="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 font-semibold text-lg shadow-lg"
-        >
-          <Plus className="w-5 h-5" />
-          Create New Category
-        </motion.button>
-      </motion.div>
-    )
-  }
+  if (filtered.length === 0) return <EmptyState search={search} />;
 
   return (
-    <div className="p-6">
-      {/* Categories Grid/Table */}
-      <AnimatePresence mode="wait">
-        {viewMode === "grid" ? (
-          <motion.div
-            key="grid-view"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-          >
-            {paginatedCategories.map((category) => (
-              <CategoryCard key={category.id} category={category} />
-            ))}
-          </motion.div>
-        ) : (
-          <motion.div key="table-view" variants={containerVariants} initial="hidden" animate="visible" exit="hidden">
-            <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      #
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Category
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-100">
-                  {paginatedCategories.map((category, index) => (
-                    <CategoryTableRow key={category.id} category={category} index={index} />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200 px-4">
-          <div className="text-sm text-gray-600">
-            Showing <span className="font-semibold">{(currentPage - 1) * categoriesPerPage + 1}</span> to{" "}
-            <span className="font-semibold">{Math.min(currentPage * categoriesPerPage, filteredCategories.length)}</span> of{" "}
-            <span className="font-semibold">{filteredCategories.length}</span> categories
-          </div>
-          <div className="flex items-center gap-3">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
-              className="px-5 py-2 border border-gray-300 rounded-xl bg-white text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium shadow-sm"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Previous
-            </motion.button>
-            <span className="px-4 py-2 text-sm text-gray-700 font-medium">
-              Page <span className="font-semibold">{currentPage}</span> of <span className="font-semibold">{totalPages}</span>
-            </span>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
-              className="px-5 py-2 border border-gray-300 rounded-xl bg-white text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium shadow-sm"
-            >
-              Next
-              <ChevronRight className="w-4 h-4" />
-            </motion.button>
-          </div>
+    <div>
+      {viewMode === "grid" ? (
+        <div className="p-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {paginated.map(cat => <CategoryCard key={cat.id} category={cat} onEdit={onEdit} onDelete={onDelete} />)}
         </div>
+      ) : (
+        <table className="w-full text-left border-collapse">
+          <thead className="bg-slate-50/50">
+            <tr>
+              <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest"># ID</th>
+              <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Classification Node</th>
+              <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+              <th className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-50">
+            {paginated.map((cat, idx) => (
+              <tr key={cat.id} className="hover:bg-slate-50/30 transition-colors group">
+                <td className="px-8 py-5 text-xs font-black text-slate-300">{String((currentPage-1)*itemsPerPage + idx + 1).padStart(2, '0')}</td>
+                <td className="px-8 py-5">
+                   <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-slate-100 p-0.5 group-hover:bg-blue-600 transition-colors">
+                      <div className="w-full h-full rounded-[10px] bg-white border-2 border-white overflow-hidden relative">
+  {cat.image_url ? (
+    <Image
+      src={cat.image_url}
+      alt={cat.name}
+      fill
+      className="object-cover"
+    />
+  ) : (
+    <Package className="m-auto text-slate-200" size={16} />
+  )}
+</div>
+
+                      </div>
+                      <span className="text-[13px] font-black text-slate-900 uppercase tracking-tight">{cat.name}</span>
+                   </div>
+                </td>
+                <td className="px-8 py-5">
+                   <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase rounded-lg border border-emerald-100">Synchronized</span>
+                </td>
+                <td className="px-8 py-5 text-right">
+                  <div className="flex justify-end gap-2">
+                    <button onClick={() => onEdit(cat)} className="p-2.5 bg-slate-50 text-slate-400 hover:text-blue-600 hover:bg-white hover:shadow-lg rounded-xl transition-all border border-transparent hover:border-blue-100"><Edit size={16} /></button>
+                    <button onClick={() => onDelete(cat.id)} className="p-2.5 bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-white hover:shadow-lg rounded-xl transition-all border border-transparent hover:border-red-100"><Trash2 size={16} /></button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
+      
+      {/* Pagination Footer */}
+      <div className="px-8 py-6 bg-slate-50/50 border-t border-slate-50 flex items-center justify-between rounded-b-[32px]">
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Page {currentPage} / {totalPages || 1}</p>
+        <div className="flex gap-2">
+          <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className="p-2 bg-white border border-slate-200 rounded-xl disabled:opacity-20 hover:text-blue-600 transition-all shadow-sm"><ChevronLeft size={16}/></button>
+          <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage(p => p + 1)} className="p-2 bg-white border border-slate-200 rounded-xl disabled:opacity-20 hover:text-blue-600 transition-all shadow-sm"><ChevronRight size={16}/></button>
+        </div>
+      </div>
     </div>
   )
+}
+
+function CategoryCard({ category, onEdit, onDelete }) {
+  return (
+    <div className="bg-white rounded-[24px] border border-slate-100 p-4 hover:shadow-2xl hover:shadow-blue-500/5 transition-all group relative">
+       <div className="aspect-square bg-slate-50 rounded-2xl overflow-hidden mb-4 p-4 relative">
+          <div className="w-full h-full rounded-xl bg-white flex items-center justify-center border-2 border-slate-100 overflow-hidden shadow-inner">
+             {category.image_url ? <img src={category.image_url} className="object-contain w-full h-full p-2" /> : <Package size={40} className="text-slate-100" />}
+          </div>
+          <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
+             <button onClick={() => onEdit(category)} className="p-2 bg-slate-900 text-white rounded-xl shadow-lg hover:bg-blue-600"><Edit size={14}/></button>
+             <button onClick={() => onDelete(category.id)} className="p-2 bg-white text-red-500 rounded-xl shadow-lg hover:bg-red-50"><Trash2 size={14}/></button>
+          </div>
+       </div>
+       <div className="px-2">
+          <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight truncate">{category.name}</h4>
+          <Link href={`/admin/category/${category.id}`} className="mt-4 flex items-center justify-between group/link">
+             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover/link:text-blue-600 transition-colors">Inspect Node</span>
+             <ArrowUpRight size={16} className="text-slate-200 group-hover/link:text-blue-600 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-all" />
+          </Link>
+       </div>
+    </div>
+  )
+}
+
+function EmptyState({ search }) {
+    return (
+        <div className="py-32 text-center flex flex-col items-center gap-4">
+            <Package size={48} className="text-slate-100" />
+            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                {search ? `No classification found for "${search}"` : "Registry inventory empty"}
+            </p>
+        </div>
+    )
 }
 
 export default CategoriesTable

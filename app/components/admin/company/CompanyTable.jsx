@@ -1,75 +1,69 @@
-// app/admin/companies/components/CompanyTable.jsx
-"use client"
+import { Edit, Trash2, Layout, ArrowUpRight, Mail, Calendar } from "lucide-react";
+import Link from "next/link";
+import { RoleBadge } from "../users/RoleBadge";
 
-import { ShieldAlert, Building2 } from "lucide-react"
-import { CompanyTableRow } from "./CompanyTableRow"
-
-const LoadingState = () => (
-  <tr>
-    <td colSpan="4" className="text-center py-12">
-      <div className="flex flex-col items-center justify-center gap-3 text-gray-500">
-        <div className="animate-spin h-8 w-8 border-2 border-gray-300 border-t-emerald-600 rounded-full"></div>
-        <p className="font-medium">Loading companies...</p>
-      </div>
-    </td>
-  </tr>
-)
-
-const ErrorState = ({ error }) => (
-  <tr>
-    <td colSpan="4" className="text-center py-12">
-      <div className="flex flex-col items-center justify-center gap-3 text-red-500">
-        <ShieldAlert className="w-12 h-12" />
-        <div>
-          <p className="font-semibold text-lg">Error loading companies</p>
-          <p className="text-sm text-gray-500">{error}</p>
-        </div>
-      </div>
-    </td>
-  </tr>
-)
-
-const EmptyState = ({ searchTerm }) => (
-  <tr>
-    <td colSpan="4" className="text-center py-12">
-      <div className="flex flex-col items-center justify-center gap-3 text-gray-500">
-        <Building2 className="w-12 h-12" />
-        <div>
-          <p className="font-semibold text-lg">No companies found</p>
-          <p className="text-sm">{searchTerm ? "Try adjusting your search" : "No companies have registered yet."}</p>
-        </div>
-      </div>
-    </td>
-  </tr>
-)
-
-export function CompanyTable({ companies, loading, error, searchTerm, onEdit, onDelete }) {
-  const hasCompanies = companies.length > 0
+export function CompanyTable({ companies, startIndex, onEdit, onDelete }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-        <h3 className="text-lg font-semibold text-gray-900">All Companies</h3>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Company</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Role</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Registered</th>
-              <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left border-collapse">
+        <thead className="bg-slate-50/50">
+          <tr>
+            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest"># ID</th>
+            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Partner Node</th>
+            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocol</th>
+            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Registered</th>
+            <th className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-50">
+          {companies.map((company, index) => (
+            <tr key={company.id} className="hover:bg-slate-50/30 transition-colors group">
+              <td className="px-8 py-5 text-xs font-black text-slate-300">
+                {String(startIndex + index + 1).padStart(2, '0')}
+              </td>
+              <td className="px-8 py-5">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <div className="w-11 h-11 rounded-xl p-0.5 bg-slate-100 group-hover:bg-blue-600 transition-colors">
+                      <div className="w-full h-full rounded-[10px] overflow-hidden bg-white flex items-center justify-center border-2 border-white relative shadow-sm font-black text-blue-600">
+                        {company.profile_image_url ? <img src={company.profile_image_url} className="w-full h-full object-cover" /> : company.name[0]}
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-black text-slate-900 uppercase tracking-tight">{company.name}</p>
+                    <div className="flex items-center gap-1.5 text-slate-400">
+                        <Mail size={12} />
+                        <p className="text-[10px] font-bold tracking-widest uppercase">{company.email}</p>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td className="px-8 py-5"><RoleBadge role={company.role} /></td>
+              <td className="px-8 py-5">
+                 <div className="flex items-center gap-2 text-slate-500">
+                    <Calendar size={13} className="text-slate-300" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">{new Date(company.created_at).toLocaleDateString()}</span>
+                 </div>
+              </td>
+              <td className="px-8 py-5 text-right">
+                <div className="flex justify-end gap-2">
+                  {/* LINK TO COMPANY BY ID */}
+                  <Link 
+                    href={`/admin/company/${company.id}`}
+                    className="p-2.5 bg-slate-50 text-slate-400 hover:text-blue-600 hover:bg-white hover:shadow-xl rounded-xl transition-all border border-transparent hover:border-blue-100"
+                    title="View Node Specs"
+                  >
+                    <ArrowUpRight size={16} />
+                  </Link>
+                  <button onClick={() => onEdit(company)} className="p-2.5 bg-slate-50 text-slate-400 hover:text-blue-600 hover:bg-white hover:shadow-xl rounded-xl transition-all border border-transparent hover:border-blue-100"><Edit size={16} /></button>
+                  <button onClick={() => onDelete(company)} className="p-2.5 bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-white hover:shadow-xl rounded-xl transition-all border border-transparent hover:border-red-100"><Trash2 size={16} /></button>
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {loading && <LoadingState />}
-            {!loading && error && <ErrorState error={error} />}
-            {!loading && !error && !hasCompanies && <EmptyState searchTerm={searchTerm} />}
-            {!loading && !error && hasCompanies && companies.map((company, index) => (
-              <CompanyTableRow key={company.id} company={company} index={index} onEdit={onEdit} onDelete={onDelete} />
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
-  )
+  );
 }

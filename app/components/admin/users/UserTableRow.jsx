@@ -1,89 +1,62 @@
-"use client";
-
-import { motion } from "framer-motion";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Calendar, Mail, User, ShieldAlert, Loader2 } from "lucide-react";
 import { RoleBadge } from "./RoleBadge";
 
-// Helper to clean image URL
-const getCleanImageUrl = (url) => {
-  if (!url) return null;
-  const lastHttpIndex = url.lastIndexOf("http");
-  return lastHttpIndex >= 0 ? url.substring(lastHttpIndex) : null;
-};
-
-// Helper to get user initials
-const getUserInitials = (name) => {
-  if (!name) return "U";
-  const words = name.trim().split(" ");
-  if (words.length === 1) return words[0][0].toUpperCase();
-  return words.map((w) => w[0].toUpperCase()).join("");
-};
-
-export function UserTableRow({ user, index, onEdit, onDelete }) {
-  const imageUrl = getCleanImageUrl(user.profile_image_url);
-  const initials = getUserInitials(user.name);
+export function UserTable({ users, loading, onEdit, onDelete }) {
+  if (loading) return <div className="p-20 text-center flex flex-col items-center gap-4"><Loader2 className="animate-spin text-blue-600" /><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Scanning Registry Nodes...</p></div>;
 
   return (
-    <motion.tr
-      key={user.id}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
-      className="hover:bg-gray-50 transition-colors"
-    >
-      <td className="px-6 py-4 whitespace-nowrap">
+    <div className="overflow-x-auto">
+      <table className="w-full text-left border-collapse">
+        <thead className="bg-slate-50/50">
+          <tr>
+            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Identity Node</th>
+            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocol</th>
+            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Connection</th>
+            <th className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-50">
+          {users.map(user => (
+            <UserTableRow key={user.id} user={user} onEdit={onEdit} onDelete={onDelete} />
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export function UserTableRow({ user, onEdit, onDelete }) {
+  const imageUrl = user.profile_image_url;
+  const initials = user.name ? user.name[0].toUpperCase() : "U";
+
+  return (
+    <tr className="hover:bg-slate-50/30 transition-colors group">
+      <td className="px-8 py-5 whitespace-nowrap">
         <div className="flex items-center gap-4">
-          <div className="relative w-12 h-12">
-            {imageUrl ? (
-              <img
-                src={imageUrl}
-                alt={user.name}
-                className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-200"
-              />
-            ) : (
-              <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold ring-2 ring-gray-200">
-                {initials}
+          <div className="relative">
+            <div className="w-11 h-11 rounded-[16px] p-0.5 bg-slate-100 group-hover:bg-blue-600 transition-colors">
+              <div className="w-full h-full rounded-[14px] overflow-hidden bg-white flex items-center justify-center border-2 border-white relative shadow-sm">
+                {imageUrl ? <img src={imageUrl} alt="" className="w-full h-full object-cover" /> : <span className="text-xs font-black text-blue-600">{initials}</span>}
               </div>
-            )}
-            <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-green-400 ring-2 ring-white"></div>
+            </div>
+            <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-white animate-pulse" />
           </div>
           <div>
-            <div className="font-semibold text-gray-900">{user.name}</div>
-            <div className="text-sm text-gray-500">{user.email}</div>
+            <p className="text-[13px] font-black text-slate-900 uppercase tracking-tight truncate max-w-[180px]">{user.name}</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{user.email}</p>
           </div>
         </div>
       </td>
-
-      <td className="px-6 py-4 whitespace-nowrap">
-        <RoleBadge role={user.role} />
+      <td className="px-8 py-5"><RoleBadge role={user.role} /></td>
+      <td className="px-8 py-5">
+        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{new Date(user.created_at).toLocaleDateString()}</span>
       </td>
-
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        {new Date(user.created_at).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        })}
-      </td>
-
-      <td className="px-6 py-4 whitespace-nowrap text-right">
+      <td className="px-8 py-5 text-right">
         <div className="flex justify-end gap-2">
-          <button
-            onClick={() => onEdit(user)}
-            className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
-            aria-label={`Edit ${user.name}`}
-          >
-            <Edit className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => onDelete(user)}
-            className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"
-            aria-label={`Delete ${user.name}`}
-          >
-            <Trash2 className="w-5 h-5" />
-          </button>
+          <button onClick={() => onEdit(user)} className="p-2.5 bg-slate-50 text-slate-400 hover:text-blue-600 hover:bg-white hover:shadow-lg rounded-xl transition-all border border-transparent hover:border-blue-100"><Edit size={16} /></button>
+          <button onClick={() => onDelete(user)} className="p-2.5 bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-white hover:shadow-lg rounded-xl transition-all border border-transparent hover:border-red-100"><Trash2 size={16} /></button>
         </div>
       </td>
-    </motion.tr>
+    </tr>
   );
 }

@@ -8,132 +8,124 @@ import { UserStats } from "../../components/admin/users/UserStats";
 import { UserTable } from "../../components/admin/users/UserTable";
 import { EditUserModal } from "../../components/admin/users/EditUserModal";
 import { ConfirmationModal } from "../../components/admin/users/ConfirmationModal";
-
-// Helper to clean image URL
-const getCleanImageUrl = (url) => {
-  if (!url) return null;
-  const lastHttpIndex = url.lastIndexOf("http");
-  return lastHttpIndex >= 0 ? url.substring(lastHttpIndex) : null;
-};
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function UsersPage() {
-  const { user, users, loading, error, fetchAllUsers, updateUser, deleteUser, fetchUser } =
-    useUserStore();
-
+  const { users, loading, error, fetchAllUsers, updateRole, deleteUser, fetchUser } = useUserStore();
+  
+  // States
   const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
-  // Fetch logged-in user + all users on mount
+  const itemsPerPage = 10;
+
   useEffect(() => {
     (async () => {
-      // console.log("🟢 Fetching logged-in user profile...");
-      const loggedUser = await fetchUser();
-      // console.log("🔐 Logged-in user:", loggedUser);
-
-      if (!loggedUser) {
-        toast.error("No logged-in user found. Please log in first.");
-        return;
-      }
-
-      // console.log("📦 Fetching all users...");
+      await fetchUser();
       await fetchAllUsers();
     })();
   }, [fetchUser, fetchAllUsers]);
 
-  // Filter only regular users
-  const regularUsers = useMemo(() => users?.filter((u) => u.role === "user") ?? [], [users]);
+  // 1. Filter Logic (Hide Admin, Apply Search, Apply Role Filter)
+  const processedUsers = useMemo(() => {
+    let filtered = users?.filter((u) => u.role !== "admin") ?? [];
 
-  // Filter users by search
-  const filteredUsers = useMemo(() => {
-    if (!search.trim()) return regularUsers;
-    const lower = search.toLowerCase();
-    return regularUsers.filter(
-      (u) => u.name?.toLowerCase().includes(lower) || u.email?.toLowerCase().includes(lower)
-    );
-  }, [regularUsers, search]);
+    if (roleFilter !== "all") {
+      filtered = filtered.filter(u => u.role === roleFilter);
+    }
 
-  // Open edit modal
-  const handleOpenEditModal = (user) => {
-    // console.log("🧍 Selected user:", user);
-    if (!user) return;
-    setSelectedUser({ ...user, cleanedImageUrl: getCleanImageUrl(user.profile_image_url) });
-    setIsEditModalOpen(true);
-  };
+    if (search.trim()) {
+      const lower = search.toLowerCase();
+      filtered = filtered.filter(u => 
+        u.name?.toLowerCase().includes(lower) || u.email?.toLowerCase().includes(lower)
+      );
+    }
 
-  // Open confirm modal
-  const handleOpenConfirmModal = (user) => {
-    if (!user) return;
-    setSelectedUser(user);
-    setIsConfirmModalOpen(true);
-  };
+    return filtered;
+  }, [users, search, roleFilter]);
 
-  // Close all modals
-  const handleCloseModals = () => {
-    setSelectedUser(null);
-    setIsEditModalOpen(false);
-    setIsConfirmModalOpen(false);
-  };
+  // 2. Pagination Logic
+  const totalPages = Math.ceil(processedUsers.length / itemsPerPage);
+  const paginatedUsers = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return processedUsers.slice(start, start + itemsPerPage);
+  }, [processedUsers, currentPage]);
 
-  // Save role change
   const handleSaveRole = async (userId, newRole) => {
-    const loadingToast = toast.loading("Updating role...");
-    const formData = new FormData();
-    formData.append("role", newRole);
+    if (!selectedUser) return;
+  
+    const loadingToast = toast.loading("Updating Permissions...");
+  
     try {
-      await updateUser(userId, formData);
-      toast.success("User role updated successfully!", { id: loadingToast });
-      handleCloseModals();
+      await updateRole({ id: userId, type: "user", role: newRole });
+      toast.success("Registry Permissions Updated", { id: loadingToast });
+      setIsEditModalOpen(false);
     } catch (err) {
-      toast.error(err.message || "Failed to update role.", { id: loadingToast });
+      toast.error(err.message || "Update Failed", { id: loadingToast });
     }
   };
+  
+  
 
-  // Delete user
   const handleDeleteUser = async () => {
-    if (!selectedUser?.id) return;
-    const loadingToast = toast.loading("Deleting user...");
-    handleCloseModals();
+    const loadingToast = toast.loading("Purging Node...");
     try {
       await deleteUser(selectedUser.id);
-      toast.success("User deleted successfully!", { id: loadingToast });
-    } catch (err) {
-      toast.error(err.message || "Failed to delete user.", { id: loadingToast });
-    }
+      toast.success("Node Purged Successfully", { id: loadingToast });
+      setIsConfirmModalOpen(false);
+    } catch (err) { toast.error("Purge Failed", { id: loadingToast }); }
   };
 
   return (
-    <>
-      {/* Modals */}
-      <EditUserModal
-        isOpen={isEditModalOpen}
-        onClose={handleCloseModals}
-        onSave={handleSaveRole}
-        user={selectedUser}
-      />
-      <ConfirmationModal
-        isOpen={isConfirmModalOpen}
-        onClose={handleCloseModals}
-        onConfirm={handleDeleteUser}
-        userName={selectedUser?.name || "Unknown User"}
-      />
+    <div className="space-y-8 pb-10">
+      <UserStats users={users || []} />
+      
+      <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+        <UsersPageHeader 
+          search={search} 
+          onSearchChange={(val) => { setSearch(val); setCurrentPage(1); }} 
+          roleFilter={roleFilter}
+          onRoleFilterChange={(val) => { setRoleFilter(val); setCurrentPage(1); }}
+        />
+        
+        <UserTable
+          users={paginatedUsers}
+          loading={loading}
+          startIndex={(currentPage - 1) * itemsPerPage}
+          onEdit={(u) => { setSelectedUser(u); setIsEditModalOpen(true); }}
+          onDelete={(u) => { setSelectedUser(u); setIsConfirmModalOpen(true); }}
+        />
 
-      {/* Page Content */}
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto p-6">
-        <UserStats users={regularUsers} />
-          <UsersPageHeader search={search} onSearchChange={setSearch} />
-          <UserTable
-            users={filteredUsers}
-            loading={loading}
-            error={error}
-            searchTerm={search}
-            onEdit={handleOpenEditModal}
-            onDelete={handleOpenConfirmModal}
-          />
+        {/* --- PAGINATION CONTROLS --- */}
+        <div className="px-8 py-6 bg-slate-50/50 border-t border-slate-50 flex items-center justify-between">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            Page {currentPage} of {totalPages || 1}
+          </p>
+          <div className="flex gap-2">
+            <button 
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => prev - 1)}
+              className="p-2.5 bg-white border border-slate-200 rounded-xl disabled:opacity-30 hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <button 
+              disabled={currentPage >= totalPages}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              className="p-2.5 bg-white border border-slate-200 rounded-xl disabled:opacity-30 hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
         </div>
       </div>
-    </>
+
+      <EditUserModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSave={handleSaveRole} user={selectedUser} />
+      <ConfirmationModal isOpen={isConfirmModalOpen} onClose={() => setIsConfirmModalOpen(false)} onConfirm={handleDeleteUser} userName={selectedUser?.name} />
+    </div>
   );
 }

@@ -1,60 +1,32 @@
-// app/admin/companies/components/CompanyStats.jsx
-"use client"
-
-import { useMemo } from "react"
-import { motion } from "framer-motion"
-import { Building2, UserPlus } from "lucide-react"
+import { Building2, PlusCircle } from "lucide-react";
 
 export function CompanyStats({ companies }) {
-  const stats = useMemo(() => {
-    const total = companies.length;
-    const recentCompanies = companies.filter((c) => {
-      if (!c.created_at) return false;
-      const joinDate = new Date(c.created_at);
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      return joinDate > weekAgo;
-    }).length;
-
-    return { total, recentCompanies };
-  }, [companies]);
+  const total = companies.length;
+  const recent = companies.filter(c => new Date(c.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl p-6 text-gray-900 shadow-lg border border-gray-100"
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-gray-500 text-sm font-medium">Total Companies</p>
-            <p className="text-3xl font-bold mt-1">{stats.total}</p>
-            <p className="text-gray-400 text-xs mt-1">Registered business accounts</p>
-          </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
-            <Building2 className="h-6 w-6 text-emerald-600" />
-          </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex items-center justify-between group hover:border-blue-200 transition-all">
+        <div>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total Partner Nodes</p>
+          <h4 className="text-4xl font-black text-slate-900 tracking-tighter">{total}</h4>
+          <p className="text-[10px] font-bold text-slate-300 uppercase mt-1">Verified Ecosystem Partners</p>
         </div>
-      </motion.div>
+        <div className="w-16 h-16 rounded-[24px] bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <Building2 size={28} />
+        </div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="bg-white rounded-2xl p-6 shadow-lg text-gray-900 border border-gray-100"
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-500">New This Week</p>
-            <p className="text-3xl font-bold mt-1">{stats.recentCompanies}</p>
-            <p className="text-gray-400 text-xs mt-1">Recently registered</p>
-          </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-            <UserPlus className="h-6 w-6 text-green-600" />
-          </div>
+      <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex items-center justify-between group hover:border-cyan-200 transition-all">
+        <div>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">New Initializations</p>
+          <h4 className="text-4xl font-black text-slate-900 tracking-tighter">{recent}</h4>
+          <p className="text-[10px] font-bold text-slate-300 uppercase mt-1">Registry entries this week</p>
         </div>
-      </motion.div>
+        <div className="w-16 h-16 rounded-[24px] bg-cyan-50 text-cyan-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <PlusCircle size={28} />
+        </div>
+      </div>
     </div>
-  )
+  );
 }

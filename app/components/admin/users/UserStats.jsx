@@ -1,62 +1,28 @@
-// app/admin/users/components/UserStats.jsx
-"use client";
-
-import { useMemo } from "react";
-import { motion } from "framer-motion";
-import { Users, UserPlus } from "lucide-react";
+import { User, Building2 } from "lucide-react";
 
 export function UserStats({ users }) {
-  const stats = useMemo(() => {
-    const total = users.length;
-    const recentUsers = users.filter((u) => {
-      // Ensure created_at is valid before creating a Date object
-      if (!u.created_at) return false;
-      const joinDate = new Date(u.created_at);
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      return joinDate > weekAgo;
-    }).length;
-
-    return { total, recentUsers };
-  }, [users]);
+  const totalUser = users.filter(u => u.role === 'user').length;
+  const totalCompany = users.filter(u => u.role === 'company').length;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="bg-white rounded-2xl p-6 text-gray-900 shadow-lg border border-gray-100"
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-gray-500 text-sm font-medium">Total Users</p>
-            <p className="text-3xl font-bold mt-1">{stats.total}</p>
-            <p className="text-gray-400 text-xs mt-1">Active platform users</p>
-          </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-            <Users className="h-6 w-6 text-blue-600" />
-          </div>
-        </div>
-      </motion.div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <StatCard label="Total User" value={totalUser} sub="Active Standard Nodes" icon={User} color="blue" />
+      <StatCard label="Total Company" value={totalCompany} sub="Verified Partner Nodes" icon={Building2} color="cyan" />
+    </div>
+  );
+}
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className="bg-white rounded-2xl p-6 shadow-lg text-gray-900 border border-gray-100"
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-500">New This Week</p>
-            <p className="text-3xl font-bold mt-1">{stats.recentUsers}</p>
-            <p className="text-gray-400 text-xs mt-1">Recently joined</p>
-          </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-            <UserPlus className="h-6 w-6 text-green-600" />
-          </div>
-        </div>
-      </motion.div>
+function StatCard({ label, value, sub, icon: Icon, color }) {
+  return (
+    <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex items-center justify-between">
+      <div>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{label}</p>
+        <h4 className="text-4xl font-black text-slate-900 tracking-tighter">{value}</h4>
+        <p className="text-[10px] font-bold text-slate-300 uppercase mt-1">{sub}</p>
+      </div>
+      <div className={`w-16 h-16 rounded-[24px] flex items-center justify-center ${color === 'blue' ? 'bg-blue-50 text-blue-600' : 'bg-cyan-50 text-cyan-600'}`}>
+        <Icon size={28} />
+      </div>
     </div>
   );
 }

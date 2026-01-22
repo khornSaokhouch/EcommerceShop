@@ -1,222 +1,176 @@
-// components/EventManager.jsx
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { useEventStore } from "../../stores/useEventStore";
-import EventModal from "../../components/admin/event/EventModal"; // Import the new modal component
-import DeleteConfirmationModal from "../../components/admin/event/DeleteConfirmationModal"; // Import delete modal
-import NotificationToast from "../../components/admin/event/NotificationToast"; // Import notification component
+import EventModal from "../../components/admin/event/EventModal";
+import DeleteConfirmationModal from "../../components/admin/event/DeleteConfirmationModal";
+import toast from "react-hot-toast";
+import { 
+  Plus, Edit, Trash2, Loader2, Image as ImageIcon,
+  Zap
+} from "lucide-react";
 
 export default function EventManager() {
-  const { events, fetchEvents, saveEvent, deleteEvent, loading, error } =
-    useEventStore();
+  const { events, fetchEvents, saveEvent, deleteEvent, loading, error } = useEventStore();
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [currentEvent, setCurrentEvent] = useState(null); // Use null for initial state to differentiate between new and existing
+  const [currentEvent, setCurrentEvent] = useState(null);
   const [eventIdToDelete, setEventIdToDelete] = useState(null);
-  const [notification, setNotification] = useState({ message: "", type: "" });
 
-  useEffect(() => {
-    fetchEvents();
-  }, []);
+  useEffect(() => { fetchEvents(); }, [fetchEvents]);
 
-  const showNotification = (message, type = "success") => {
-    setNotification({ message, type });
-    setTimeout(() => {
-      setNotification({ message: "", type: "" });
-    }, 3000); // Notification disappears after 3 seconds
-  };
-
-  // --- Event Modal (Add/Edit) Handlers ---
   const handleOpenEventModal = (event = null) => {
-    setCurrentEvent(event); // If null, it's an add operation; otherwise, it's an edit
+    setCurrentEvent(event);
     setIsEventModalOpen(true);
   };
 
-  const handleCloseEventModal = () => {
-    setCurrentEvent(null);
-    setIsEventModalOpen(false);
-  };
-
   const handleSaveEvent = async (formData, eventId) => {
+    const tid = toast.loading(eventId ? "Syncing Event Protocol..." : "Initializing New Event...");
     try {
-      const isEditing = !!eventId;
       await saveEvent(formData, eventId);
-      showNotification(
-        isEditing ? "Event updated successfully!" : "Event added successfully!",
-        "success"
-      );
-      handleCloseEventModal(); // Close modal after successful save
+      toast.success(eventId ? "Event Registry Updated" : "Event Node Initialized", { id: tid });
+      setIsEventModalOpen(false);
     } catch (err) {
-      console.error(err);
-      showNotification("Failed to save event.", "error");
+      toast.error("Protocol Sync Failed", { id: tid });
     }
   };
 
-  // --- Delete Modal Handlers ---
-  const handleOpenDeleteModal = (id) => {
-    setEventIdToDelete(id);
-    setIsDeleteModalOpen(true);
-  };
-
-  const handleCloseDeleteModal = () => {
-    setEventIdToDelete(null);
-    setIsDeleteModalOpen(false);
-  };
-
   const handleDeleteEvent = async () => {
+    const tid = toast.loading("Purging Event Node...");
     try {
       if (eventIdToDelete) {
         await deleteEvent(eventIdToDelete);
-        showNotification("Event deleted successfully!", "success");
-        handleCloseDeleteModal(); // Close modal after successful delete
+        toast.success("Event Purged from Registry", { id: tid });
+        setIsDeleteModalOpen(false);
       }
     } catch (err) {
-      console.error(err);
-      showNotification("Failed to delete event.", "error");
+      toast.error("Purge Failed", { id: tid });
     }
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-xl p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-extrabold text-gray-900">
-            Event Management
-          </h1>
-          <button
-            onClick={() => handleOpenEventModal()}
-            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:-translate-y-0.5"
-          >
-            Add New Event
-          </button>
+    <div className="space-y-8 pb-20 animate-in fade-in duration-700">
+      
+      {/* 1. Header Section */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[9px] font-black uppercase tracking-[0.2em] mb-4 border border-blue-100">
+            <Zap className="w-3 h-3" /> Event Registry
+          </div>
+          <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none">Occurence Hub</h1>
+          <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest mt-1">Manage system-wide promotional and technical events</p>
         </div>
+        
+        <button 
+          onClick={() => handleOpenEventModal()}
+          className="group relative px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] overflow-hidden transition-all active:scale-[0.98] shadow-xl"
+        >
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <span className="relative z-10 flex items-center gap-2">
+                <Plus size={16} /> Initialize Event
+            </span>
+        </button>
+      </div>
 
-        {loading && (
-          <div className="text-center py-8 text-gray-600">
-            Loading events...
+      {/* 2. Content Table */}
+      <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
+        {loading && events.length === 0 ? (
+          <div className="py-40 flex flex-col items-center gap-4">
+            <Loader2 className="animate-spin text-blue-600" size={32} />
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Scanning Event Nodes...</p>
           </div>
-        )}
-        {error && <p className="text-red-600 text-center py-4">{error}</p>}
-
-        {!loading && events.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            No events found. Start by adding a new one!
-          </div>
-        )}
-
-        {!loading && events.length > 0 && (
-          <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                {/* REMOVE WHITESPACE HERE */}
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Description
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Start Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    End Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Image
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-                {/* REMOVE WHITESPACE HERE */}
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-  {events.map((event, index) => (
-    <tr key={event.id} className="hover:bg-gray-50">
-      {/* Replace event.id with index + 1 */}
-      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-        {index + 1}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-        {event.name
-          ? event.name.length > 20
-            ? `${event.name.substring(0, 20)}...`
-            : event.name
-          : "-"}
-      </td>
-      <td className="px-6 py-4 text-sm text-gray-700 max-w-xs">
-        {event.description
-          ? event.description.length > 30
-            ? `${event.description.substring(0, 30)}...`
-            : event.description
-          : "-"}
-      </td>
-
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-        {event.start_date.split("T")[0]}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-        {event.end_date ? event.end_date.split("T")[0] : "-"}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        {event.event_image_url ? (
-          <img
-            src={event.event_image_url}
-            alt={event.name}
-            className="h-10 w-10 object-cover rounded-full border border-gray-200"
-          />
+        ) : error ? (
+          <div className="p-12 text-center text-rose-500 font-bold uppercase text-xs">{error}</div>
         ) : (
-          <span className="text-gray-400 text-sm">No Image</span>
-        )}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-        <button
-          onClick={() => handleOpenEventModal(event)}
-          className="text-indigo-600 hover:text-indigo-900 mr-4 transition-colors duration-200"
-          title="Edit Event"
-        >
-          Edit
-        </button>
-        <button
-          onClick={() => handleOpenDeleteModal(event.id)}
-          className="text-red-600 hover:text-red-900 transition-colors duration-200"
-          title="Delete Event"
-        >
-          Delete
-        </button>
-      </td>
-    </tr>
-  ))}
-</tbody>
-
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-slate-50/50">
+                <tr>
+                  <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest"># ID</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Occurence Node</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Timeline</th>
+                  <th className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Control</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {events.map((event, index) => (
+                  <tr key={event.id} className="hover:bg-slate-50/30 transition-colors group">
+                    <td className="px-8 py-5 text-xs font-black text-slate-300">
+                        {String(index + 1).padStart(2, '0')}
+                    </td>
+                    <td className="px-8 py-5">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-slate-100 p-0.5 group-hover:bg-blue-600 transition-colors">
+                            <div className="w-full h-full rounded-[10px] bg-white border-2 border-white overflow-hidden relative shadow-sm">
+                                {event.event_image_url ? (
+                                    <img src={event.event_image_url} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                    <ImageIcon className="m-auto text-slate-200" size={16}/>
+                                )}
+                            </div>
+                        </div>
+                        <div>
+                            <p className="text-[13px] font-black text-slate-900 uppercase tracking-tight truncate max-w-[150px]">
+                                {event.name || "Unnamed Node"}
+                            </p>
+                            <div className="flex items-center gap-1.5">
+                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                <span className="text-[9px] font-bold text-slate-400 uppercase">Active Node</span>
+                            </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-8 py-5">
+                        <p className="text-[11px] text-slate-500 font-medium line-clamp-1 max-w-xs italic">
+                            "{event.description || "No registry description..."}"
+                        </p>
+                    </td>
+                    <td className="px-8 py-5">
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-2 text-[10px] font-black text-slate-700 uppercase">
+                                <span className="text-slate-300">Start:</span> {event.start_date.split("T")[0]}
+                            </div>
+                            <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase">
+                                <span className="text-slate-300">End:</span> {event.end_date?.split("T")[0] || "---"}
+                            </div>
+                        </div>
+                    </td>
+                    <td className="px-8 py-5 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button 
+                            onClick={() => handleOpenEventModal(event)}
+                            className="p-2.5 bg-slate-50 text-slate-400 hover:text-blue-600 hover:bg-white hover:shadow-lg rounded-xl transition-all border border-transparent hover:border-blue-100"
+                        >
+                            <Edit size={16} />
+                        </button>
+                        <button 
+                            onClick={() => { setEventIdToDelete(event.id); setIsDeleteModalOpen(true); }}
+                            className="p-2.5 bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-white hover:shadow-lg rounded-xl transition-all border border-transparent hover:border-red-100"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
           </div>
         )}
       </div>
 
-      {/* Event Add/Edit Modal */}
       <EventModal
         isOpen={isEventModalOpen}
-        onClose={handleCloseEventModal}
-        event={currentEvent} // Pass the event data (null for add, object for edit)
+        onClose={() => setIsEventModalOpen(false)}
+        event={currentEvent}
         onSave={handleSaveEvent}
       />
 
-      {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
-        onClose={handleCloseDeleteModal}
+        onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteEvent}
-      />
-
-      {/* Notification Toast */}
-      <NotificationToast
-        message={notification.message}
-        type={notification.type}
       />
     </div>
   );

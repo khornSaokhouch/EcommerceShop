@@ -1,34 +1,23 @@
-"use client"
-
-import { Search } from "lucide-react"
+import { Search, Building2 } from "lucide-react";
 
 export function CompanyPageHeader({ search, onSearchChange }) {
   return (
-    <div className="mb-10 p-6 sm:p-8 bg-white rounded-2xl shadow-xl border border-gray-100">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 lg:gap-8">
-        <div className="flex-shrink-0">
-          <h1 className="text-4xl font-extrabold text-gray-900 leading-tight">
-            Company Management
-          </h1>
-          <p className="mt-1 text-lg text-gray-500">
-            View and manage all registered companies.
-          </p>
-        </div>
-        <div className="relative w-full lg:w-96">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-indigo-400" />
-          <input
-            type="text"
-            placeholder="Search companies by name, domain, or ID..."
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full rounded-full border border-gray-300 py-3.5 pl-12 pr-6 text-base text-gray-700 bg-gray-50
-                       placeholder:text-gray-400
-                       focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20
-                       transition duration-200 ease-in-out shadow-inner"
-            aria-label="Search companies"
-          />
-        </div>
+    <div className="px-8 py-8 border-b border-slate-50 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div>
+        <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Partner Registry</h2>
+        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Verified Hardware Manufacturers & Distributors</p>
+      </div>
+
+      <div className="relative w-full lg:w-96 group">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-600 transition-colors" />
+        <input
+          type="text"
+          placeholder="Search Partner Node..."
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-11 pr-4 text-sm font-bold text-slate-800 focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all outline-none"
+        />
       </div>
     </div>
-  )
+  );
 }

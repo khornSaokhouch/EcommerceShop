@@ -2,11 +2,22 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
-import { Heart, ShoppingCart, Zap, ShieldCheck, ArrowRight } from "lucide-react";
+import { Heart, ShoppingCart } from "lucide-react";
 import { useShoppingCartStore } from "../../stores/useShoppingCart";
 import { useUserStore } from "../../stores/userStore";
 import { usePromotionsCategoryStore } from "../../stores/usePromotionsCategoryStore";
 import { motion } from "framer-motion";
+
+// Helper to slugify product names
+const slugify = (text) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')       // Replace spaces with -
+    .replace(/[^\w\-]+/g, '')   // Remove all non-word chars
+    .replace(/\-\-+/g, '-');    // Replace multiple - with single -
+};
 
 export default function ProductCard({ product, isFavourite, onAddFavourite }) {
   const userId = useUserStore((state) => state.user?.id);
@@ -60,13 +71,16 @@ export default function ProductCard({ product, isFavourite, onAddFavourite }) {
     );
   };
 
+  // Slugified product name for URLs
+  const productSlug = slugify(product.name);
+
   return (
     <motion.div 
       whileHover={{ y: -5 }}
       className="group relative bg-white rounded-[24px] border border-slate-100 overflow-hidden hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col h-full"
     >
-      {/* 1. Image Area - Integrated glassmorphism badge */}
-      <Link href={`/details/${product.id}`} className="relative aspect-[1.1/1] overflow-hidden bg-slate-50 p-3">
+      {/* 1. Image Area */}
+      <Link href={`/details/${productSlug}`} className="relative aspect-[1.1/1] overflow-hidden bg-slate-50 p-3">
         <div className="relative w-full h-full rounded-2xl overflow-hidden bg-white">
           <img
             src={product.product_image_url || "/placeholder.svg"}
@@ -104,7 +118,7 @@ export default function ProductCard({ product, isFavourite, onAddFavourite }) {
             <div className="flex-1 h-px bg-slate-50" />
         </div>
 
-        <Link href={`/details/${product.id}`}>
+        <Link href={`/details/${productSlug}`}>
           <h2 className="text-[14px] font-black text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1 mb-1 uppercase tracking-tight">
             {product.name}
           </h2>
@@ -114,7 +128,7 @@ export default function ProductCard({ product, isFavourite, onAddFavourite }) {
           {product.description || "Official high-performance gear."}
         </p>
 
-        {/* 3. Price & Action - Unified Button Style */}
+        {/* 3. Price & Action */}
         <div className="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between">
           <div className="flex flex-col">
             <div className="flex items-center gap-2">

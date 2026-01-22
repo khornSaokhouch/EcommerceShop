@@ -1,39 +1,41 @@
-"use client"
+import { Search, Filter, ChevronDown } from "lucide-react";
 
-import { Search } from "lucide-react"
-
-export function UsersPageHeader({ search, onSearchChange }) {
+export function UsersPageHeader({ search, onSearchChange, roleFilter, onRoleFilterChange }) {
   return (
-    // Redesigned container: subtle shadow, light background, and generous padding for a card effect.
-    <div className="mb-10 p-6 sm:p-8 bg-white rounded-xl shadow-lg border border-gray-200/50">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 lg:gap-8">
-        {/* Title and Subtitle Section (Enhanced Typography) */}
-        <div className="flex-shrink-0">
-          <h1 className="text-4xl font-extrabold text-gray-800 leading-tight">
-            User Management
-          </h1>
-          <p className="mt-1 text-lg text-gray-500">
-            Manage and monitor platform users and their activity levels.
-          </p>
+    <div className="px-8 py-8 border-b border-slate-50 flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+      <div>
+        <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Identity Registry</h2>
+        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Manage and verify terminal access nodes</p>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-4">
+        {/* Role Filter Selector */}
+        <div className="relative group min-w-[180px]">
+           <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+           <select 
+             value={roleFilter}
+             onChange={(e) => onRoleFilterChange(e.target.value)}
+             className="w-full appearance-none bg-slate-50 border-none rounded-2xl py-3.5 pl-11 pr-10 text-[10px] font-black uppercase tracking-widest text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/5 transition-all"
+           >
+              <option value="all">All Protocols</option>
+              <option value="user">Standard User</option>
+              <option value="company">Merchant Node</option>
+           </select>
+           <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 pointer-events-none" />
         </div>
 
-        {/* Search Input Section (Sleek, Full-Width on Mobile, Fixed Width on Desktop) */}
-        <div className="relative w-full lg:w-96">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-indigo-400" />
+        {/* Search Input */}
+        <div className="relative w-full lg:w-96 group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-600 transition-colors" />
           <input
             type="text"
-            placeholder="Search users by name, email, or ID..."
+            placeholder="Search Identity UID..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            // Enhanced input styling: rounded-full, better padding, light background, prominent indigo focus ring
-            className="w-full rounded-full border border-gray-300 py-3.5 pl-12 pr-6 text-base text-gray-700 bg-gray-50
-                       placeholder:text-gray-400
-                       focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20
-                       transition duration-200 ease-in-out shadow-inner"
-            aria-label="Search users"
+            className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-11 pr-4 text-sm font-bold text-slate-800 focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all outline-none"
           />
         </div>
       </div>
     </div>
-  )
+  );
 }

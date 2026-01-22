@@ -1,56 +1,31 @@
-// components/DeleteConfirmationModal.jsx
+"use client";
 import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Trash2, AlertCircle } from "lucide-react";
 
 export default function DeleteConfirmationModal({ isOpen, onClose, onConfirm }) {
   if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-opacity-75 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-sm m-4 transform transition-all duration-300 scale-100 opacity-100">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Confirm Deletion</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
-          >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
-          </button>
-        </div>
-
-        <p className="text-gray-700 mb-6">
-          Are you sure you want to delete this event? This action cannot be undone.
-        </p>
-
-        <div className="flex justify-end space-x-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-5 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition duration-200"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            className="px-5 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200 shadow-md"
-          >
-            Delete
-          </button>
-        </div>
+    <AnimatePresence>
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+        <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-white rounded-[32px] p-8 w-full max-w-sm relative z-10 shadow-2xl border border-slate-100 text-center font-sans"
+        >
+          <div className="w-16 h-16 rounded-3xl bg-red-50 flex items-center justify-center mb-6 mx-auto">
+            <Trash2 className="w-8 h-8 text-red-500" />
+          </div>
+          <h2 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">Purge Occurence?</h2>
+          <p className="text-sm text-slate-500 mb-8 leading-relaxed font-medium italic">
+             Removing this event node will permanently delete all associated data from the hardware registry.
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <button onClick={onClose} className="py-4 text-xs font-black uppercase text-slate-400 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors">Abort</button>
+            <button onClick={onConfirm} className="py-4 text-xs font-black uppercase text-white bg-red-500 rounded-2xl hover:bg-red-600 shadow-xl shadow-red-200 transition-all">Execute Purge</button>
+          </div>
+        </motion.div>
       </div>
-    </div>
+    </AnimatePresence>
   );
 }

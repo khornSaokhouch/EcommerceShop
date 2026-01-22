@@ -1,42 +1,35 @@
-import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import ToastProvider from './components/ToastProvider';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-  display: 'swap',
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-  display: 'swap',
-});
-
 export const metadata = {
-  title: 'TechnoCore | Premium Tech Marketplace',
-  description: 'High-performance gadgets and hardware',
+  title: 'TECHNOCORE | Hardware Registry',
+  description: 'High-performance hardware procurement and professional tech marketplace.',
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <body className="font-sans antialiased bg-[#f8fafc] text-slate-900 min-h-screen flex flex-col">
-        {/* Apply font classes on a wrapper div */}
-        <div className={`${geistSans.variable} ${geistMono.variable}  flex flex-col flex-grow`}>
-          {/* Decorative Background Glow */}
-          <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-            <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-blue-50/50 blur-[120px]" />
-            <div className="absolute top-[20%] -right-[10%] w-[30%] h-[30%] rounded-full bg-cyan-50/50 blur-[120px]" />
-          </div>
-
-          {/* Client-only Toaster */}
-          <ToastProvider />
-
-          {/* Main content */}
-          <main >{children}</main>
+    // ✅ suppressHydrationWarning fix the "attributes mismatch" error caused by extensions
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+      <body className="antialiased bg-white text-slate-900 min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+        
+        {/* --- SYSTEM AMBIENCE --- */}
+        <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+          {/* Pure Technical Glows */}
+          <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] rounded-full bg-blue-500/5 blur-[120px]" />
+          <div className="absolute top-[20%] -right-[10%] w-[40%] h-[40%] rounded-full bg-cyan-500/5 blur-[120px]" />
+          
+          {/* Subtle Registry Texture */}
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.02]" />
         </div>
+
+        {/* Global Notifications Node */}
+        <ToastProvider />
+
+        {/* Core Application Content */}
+        <main className="flex flex-col flex-grow relative z-0">
+            {children}
+        </main>
+        
       </body>
     </html>
   );

@@ -1,150 +1,61 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Edit, X, Loader2, ChevronDown } from "lucide-react";
-import { RoleBadge } from "./RoleBadge";
-
-// Helper to clean image URL
-const getCleanImageUrl = (url) => {
-  if (!url) return null;
-  const lastHttpIndex = url.lastIndexOf("http");
-  return lastHttpIndex >= 0 ? url.substring(lastHttpIndex) : null;
-};
-
-// Helper to get user initials
-const getUserInitials = (name) => {
-  if (!name) return "U";
-  const words = name.trim().split(" ");
-  if (words.length === 1) return words[0][0].toUpperCase();
-  return words.map((w) => w[0].toUpperCase()).join("");
-};
+import { X, Save, Trash2, AlertCircle, ChevronDown } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export function EditUserModal({ user, isOpen, onClose, onSave }) {
   const [selectedRole, setSelectedRole] = useState(user?.role || "user");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (user) setSelectedRole(user.role);
-  }, [user]);
-
-  if (!isOpen || !user) return null;
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    await onSave(user.id, selectedRole);
-    setIsSubmitting(false);
-  };
-
-  const imageUrl = getCleanImageUrl(user.profile_image_url);
-  const initials = getUserInitials(user.name);
+  useEffect(() => { if (user) setSelectedRole(user.role); }, [user]);
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex justify-center items-center p-4"
-          onClick={onClose}
-        >
-          <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md border border-gray-100"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-                  <Edit className="h-6 w-6 text-blue-600" />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white rounded-[32px] p-8 w-full max-w-sm relative z-10 shadow-2xl border border-slate-100">
+            <h2 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">Modify Permissions</h2>
+            <div className="space-y-6">
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black">{user.name[0]}</div>
+                    <div className="min-w-0"><p className="text-xs font-black text-slate-900 uppercase truncate">{user.name}</p><p className="text-[10px] font-bold text-slate-400 truncate">{user.email}</p></div>
                 </div>
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">Edit User Role</h2>
-                  <p className="text-sm text-gray-500">Change user permissions</p>
-                </div>
-              </div>
-              <button
-                onClick={onClose}
-                className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* User Info */}
-              <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                <div className="relative w-14 h-14">
-                  {imageUrl ? (
-                    <Image
-                      src={imageUrl}
-                      width={56}
-                      height={56}
-                      alt={user.name}
-                      className="rounded-full object-cover ring-2 ring-white shadow-sm"
-                    />
-                  ) : (
-                    <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold ring-2 ring-white shadow-sm">
-                      {initials}
-                    </div>
-                  )}
-                  <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-green-400 ring-2 ring-white"></div>
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-gray-900">{user.name}</p>
-                  <p className="text-sm text-gray-500">{user.email}</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Current: <RoleBadge role={user.role} />
-                  </p>
-                </div>
-              </div>
-
-              {/* Role Selector */}
-              <div>
-                <label htmlFor="role" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Select New Role
-                </label>
                 <div className="relative">
-                  <select
-                    id="role"
-                    value={selectedRole}
-                    onChange={(e) => setSelectedRole(e.target.value)}
-                    className="w-full appearance-none rounded-lg border border-gray-300 py-3 px-4 text-sm bg-white shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
-                  >
-                    <option value="user">👤 User - Standard Access</option>
-                    <option value="company">🏢 Company - Business Access</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)} className="w-full appearance-none bg-white border border-slate-200 rounded-xl py-3 px-4 text-xs font-bold text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all">
+                        <option value="user">Standard Node</option>
+                        <option value="company">Merchant Node</option>
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-blue-300 transition-colors shadow-sm"
-                >
-                  {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : "Save Changes"}
-                </button>
-              </div>
-            </form>
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                    <button onClick={onClose} className="py-3 text-xs font-black uppercase text-slate-400 bg-slate-50 rounded-xl hover:bg-slate-100 transition-all">Cancel</button>
+                    <button onClick={() => onSave(user.id, selectedRole)} className="py-3 text-xs font-black uppercase text-white bg-blue-600 rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-500/20 transition-all">Apply</button>
+                </div>
+            </div>
           </motion.div>
-        </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+export function ConfirmationModal({ isOpen, onClose, onConfirm, userName }) {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white rounded-[32px] p-8 w-full max-w-sm relative z-10 shadow-2xl border border-slate-100 text-center">
+            <div className="w-16 h-16 rounded-3xl bg-red-50 flex items-center justify-center mb-6 mx-auto"><Trash2 className="w-8 h-8 text-red-500" /></div>
+            <h2 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">Purge Node?</h2>
+            <p className="text-sm text-slate-500 mb-8 leading-relaxed font-medium">Removing <span className="text-slate-900 font-bold underline decoration-red-500">{userName}</span> from the central hardware registry.</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={onClose} className="py-4 text-xs font-black uppercase text-slate-400 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors">Abort</button>
+              <button onClick={onConfirm} className="py-4 text-xs font-black uppercase text-white bg-red-500 rounded-2xl hover:bg-red-600 shadow-lg shadow-red-500/20 transition-all">Execute Purge</button>
+            </div>
+          </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );

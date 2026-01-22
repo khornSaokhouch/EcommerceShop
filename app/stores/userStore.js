@@ -35,6 +35,31 @@ export const useUserStore = create((set, get) => ({
       return null;
     }
   },
+
+  // -------------------------------
+// Admin: Update role (user / company)
+// -------------------------------
+updateRole: async ({ id, type, role }) => {
+  const token = useAuthStore.getState().token;
+  if (!token) throw new Error("No token found. Please log in.");
+
+  try {
+    const res = await request(`/roles/${id}`, "PATCH", { type, role });
+    if (type === "user") {
+      set((state) => ({
+        users: state.users.map((u) =>
+          u.id === id ? { ...u, role } : u
+        ),
+        user: state.user?.id === id ? { ...state.user, role } : state.user,
+      }));
+    }
+    return res;
+  } catch (err) {
+    throw new Error(err.response?.data?.message || err.message || "Role update failed");
+  }
+},
+
+
   
 
   // -------------------------------

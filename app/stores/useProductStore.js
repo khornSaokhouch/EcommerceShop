@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { request } from '../util/request';
-import { useAuthStore } from './authStore';
 
 export const useProductStore = create((set) => ({
   products: [],
@@ -12,7 +11,7 @@ export const useProductStore = create((set) => ({
   fetchProducts: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await request('/products', 'GET'); // token auto-included
+      const res = await request('/products', 'GET');
       set({ products: res || [], loading: false });
     } catch (err) {
       set({ error: err.response?.data?.message || err.message || 'Failed to fetch products', loading: false });
@@ -23,19 +22,32 @@ export const useProductStore = create((set) => ({
   fetchAllProducts: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await request('/products', 'GET'); // token auto-included
+      const res = await request('/products', 'GET');
       set({ products: res, loading: false });
     } catch (err) {
       set({ error: err.response?.data?.message || err.message || 'Failed to fetch products', loading: false });
     }
   },
 
-  // Fetch a single product
-  fetchProduct: async (id) => {
+  // Fetch a single product by ID
+  fetchProductById: async (id) => {
     set({ loading: true, error: null });
     try {
       const res = await request(`/products/${id}`, 'GET');
       set({ product: res, loading: false });
+    } catch (err) {
+      set({ error: err.response?.data?.message || err.message || 'Failed to fetch product', loading: false });
+    }
+  },
+
+  // Fetch a single product by slug
+  fetchProductBySlug: async (slug) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await request(`/products?slug=${slug}`, 'GET'); // API returns product array or object
+      // Assuming API returns an array, pick first
+      const productData = Array.isArray(res) ? res[0] : res;
+      set({ product: productData || null, loading: false });
     } catch (err) {
       set({ error: err.response?.data?.message || err.message || 'Failed to fetch product', loading: false });
     }
@@ -52,54 +64,30 @@ export const useProductStore = create((set) => ({
     }
   },
 
-  // Fetch a category by ID
-  fetchCategoryById: async (categoryId) => {
+  // Fetch products by store
+  fetchProductsByStore: async (storeId) => {
+    set({ loading: true, error: null });
     try {
-      const data = await request(`/categories/${categoryId}`, 'GET');
-      return data;
+      const data = await request(`/products?store_id=${storeId}`, 'GET');
+      set({ products: data, loading: false });
     } catch (err) {
-      console.error('Failed to fetch category:', err);
-      return null;
+      console.error('Failed to fetch products by store:', err);
+      set({ error: err.message, loading: false });
     }
   },
 
-  // inside useProductStore
-fetchProductsByStore: async (storeId) => {
-  set({ loading: true, error: null });
-  try {
-    const data = await request(`/products?store_id=${storeId}`, 'GET');
-    set({ products: data, loading: false });
-  } catch (err) {
-    console.error('Failed to fetch products by store:', err);
-    set({ error: err.message, loading: false });
-  }
-},
-
-fetchCategoryById: async (categoryId) => {
-  try {
-    const data = await request(`/categories/${categoryId}`, 'GET');
-    return data;
-  } catch (err) {
-    console.error('Failed to fetch category:', err);
-    return null;
-  }
-},
-
-// inside useProductStore
-fetchProductsByCategoryAndStore: async (categoryId, storeId = null) => {
-  set({ loading: true, error: null });
-  try {
-    let url = `/categories/${categoryId}/products`;
-    if (storeId && storeId !== 'all') {
-      url += `?store_id=${storeId}`;
+  // Fetch products by category and store
+  fetchProductsByCategoryAndStore: async (categoryId, storeId = null) => {
+    set({ loading: true, error: null });
+    try {
+      let url = `/categories/${categoryId}/products`;
+      if (storeId && storeId !== 'all') url += `?store_id=${storeId}`;
+      const data = await request(url, 'GET');
+      set({ products: Array.isArray(data) ? data : [], loading: false });
+    } catch (err) {
+      set({ error: err.message || 'Failed to fetch products', loading: false });
     }
-    const data = await request(url, 'GET');
-    set({ products: Array.isArray(data) ? data : [], loading: false });
-  } catch (err) {
-    set({ error: err.message || 'Failed to fetch products', loading: false });
-  }
-},
-
+  },
 
   // Create a product
   createProduct: async (data) => {
@@ -107,11 +95,8 @@ fetchProductsByCategoryAndStore: async (categoryId, storeId = null) => {
     try {
       const formData = new FormData();
       for (const key in data) {
-        if (data[key] !== null && data[key] !== undefined) {
-          formData.append(key, data[key]);
-        }
+        if (data[key] !== null && data[key] !== undefined) formData.append(key, data[key]);
       }
-
       const res = await request('/products', 'POST', formData);
       set((state) => ({ products: [...state.products, res.product], loading: false }));
     } catch (err) {
@@ -134,7 +119,6 @@ fetchProductsByCategoryAndStore: async (categoryId, storeId = null) => {
         }
       }
       formData.append('_method', 'PUT');
-
       const res = await request(`/products/${id}`, 'POST', formData);
       set((state) => ({
         products: state.products.map((p) => (p.id === id ? res.product : p)),
@@ -156,6 +140,17 @@ fetchProductsByCategoryAndStore: async (categoryId, storeId = null) => {
       }));
     } catch (err) {
       set({ error: err.response?.data?.message || err.message || 'Failed to delete product', loading: false });
+    }
+  },
+
+  // Fetch a category by ID
+  fetchCategoryById: async (categoryId) => {
+    try {
+      const data = await request(`/categories/${categoryId}`, 'GET');
+      return data;
+    } catch (err) {
+      console.error('Failed to fetch category:', err);
+      return null;
     }
   },
 }));

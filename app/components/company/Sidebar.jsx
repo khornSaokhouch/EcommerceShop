@@ -1,41 +1,77 @@
-// app/components/company/Sidebar.jsx
 "use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
+import { X, ChevronRight } from "lucide-react";
 
-const cn = (...classes) => classes.filter(Boolean).join(' ');
-
-export default function Sidebar({ links }) {
+export default function Sidebar({ links, onClose }) {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full flex-col bg-white border-r border-slate-200">
-      <div className="h-16 flex items-center px-6 border-b border-slate-200">
-        <Link href="/" className="flex items-center gap-2">
-           <svg className="h-7 w-7 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-           </svg>
-          <h1 className="text-xl font-bold text-slate-800">Dashboard</h1>
-        </Link>
+    <div className="h-full bg-white flex flex-col p-6 overflow-hidden">
+      <div className="mb-10 flex items-center justify-center px-2 relative">
+        <span className="text-lg font-black tracking-tighter bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500 bg-clip-text text-transparent uppercase whitespace-nowrap">
+          TECHNOCORE
+        </span>
+
+        {/* Close button stays on the right */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute right-0 lg:hidden p-2 text-slate-400 hover:text-slate-900 transition-colors bg-slate-50 rounded-xl"
+          >
+            <X size={20} />
+          </button>
+        )}
       </div>
 
-      <nav className="flex-1 overflow-y-auto p-4 space-y-1">
+      <nav className="flex-1 overflow-y-auto space-y-1 no-scrollbar">
         {links.map((link) => {
           const isActive = pathname.startsWith(link.href);
           return (
             <Link
               key={link.label}
               href={link.href}
-              className={cn(
-                'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-indigo-50 text-indigo-600'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              )}
+              onClick={() => onClose && onClose()}
+              className={`relative flex items-center justify-between w-full px-3 py-3.5 rounded-2xl transition-all group overflow-hidden ${
+                isActive ? "bg-blue-50/50" : "hover:bg-slate-50"
+              }`}
             >
-              <link.icon className={cn('h-5 w-5', isActive ? 'text-indigo-500' : 'text-slate-500')} />
-              <span>{link.label}</span>
+              {isActive && (
+                <motion.div
+                  layoutId="activeBar"
+                  className="absolute left-0 top-3 bottom-3 w-1 bg-blue-600 rounded-r-full"
+                />
+              )}
+              <div className="flex items-center gap-3 relative z-10">
+                <div
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                    isActive
+                      ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                      : "bg-slate-100 text-slate-400 group-hover:text-blue-600"
+                  }`}
+                >
+                  <link.icon size={18} />
+                </div>
+                <span
+                  className={`text-[11px] font-black uppercase tracking-widest transition-colors ${
+                    isActive
+                      ? "text-slate-900"
+                      : "text-slate-500 group-hover:text-slate-900"
+                  }`}
+                >
+                  {link.label}
+                </span>
+              </div>
+              <ChevronRight
+                size={14}
+                className={`transition-all ${
+                  isActive
+                    ? "text-blue-500"
+                    : "opacity-0 text-slate-300 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0"
+                }`}
+              />
             </Link>
           );
         })}
