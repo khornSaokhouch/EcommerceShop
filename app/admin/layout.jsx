@@ -28,14 +28,14 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, isConfirming }) => (
             <AlertCircle className="w-8 h-8 text-red-500" />
           </div>
           <h2 className="text-xl font-bold text-slate-900 mb-2 uppercase tracking-tight">Terminate Session?</h2>
-          <p className="text-sm text-slate-500 mb-8 leading-relaxed font-medium">
+          <p className="text-[13px] text-slate-500 mb-8 leading-relaxed font-medium">
             You are about to log out of the Technocore Admin Terminal.
           </p>
           <div className="grid grid-cols-2 gap-3">
-            <button onClick={onClose} className="py-4 text-sm font-bold text-slate-500 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors">
+            <button onClick={onClose} className="py-4 text-[13px] font-bold text-slate-500 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors">
               Cancel
             </button>
-            <button onClick={onConfirm} disabled={isConfirming} className="py-4 text-sm font-bold text-white bg-red-500 rounded-2xl hover:bg-red-600 transition-all flex items-center justify-center">
+            <button onClick={onConfirm} disabled={isConfirming} className="py-4 text-[13px] font-bold text-white bg-red-500 rounded-2xl hover:bg-red-600 transition-all flex items-center justify-center">
               {isConfirming ? <Loader2 className="w-4 h-4 animate-spin" /> : "Log Out"}
             </button>
           </div>

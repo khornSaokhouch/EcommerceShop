@@ -31,6 +31,7 @@ export const useCategoryStore = create((set, get) => ({
   
       const formData = new FormData();
       formData.append('name', category.name);
+      formData.append('status', category.status ? 1 : 0);
   
       if (category.image) {
         formData.append('image', category.image);
@@ -56,6 +57,16 @@ export const useCategoryStore = create((set, get) => ({
       set({ loading: false });
     } catch (err) {
       set({ error: err.response?.data?.message || err.message || 'Failed to delete category', loading: false });
+      throw err;
+    }
+  },
+
+  toggleCategoryStatus: async (id) => {
+    try {
+      await request(`/categories/${id}/toggle-status`, 'PATCH');
+      await get().fetchCategories();
+    } catch (err) {
+      console.error('Failed to toggle category status:', err);
       throw err;
     }
   },

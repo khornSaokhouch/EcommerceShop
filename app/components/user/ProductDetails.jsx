@@ -52,8 +52,9 @@ export default function ProductDetails({ productSlug }) {
     }
   }, [product, favourites]);
 
+
   const handleFavouriteClick = async () => {
-    if (!userId) return toast.error("Please log in.");
+    if (!userId || !product) return toast.error(!userId ? "Please log in." : "Unit not synced.");
     setIsFavourited(!isFavourited);
     try {
       await addFavourite({ user_id: userId, product_id: product.id });
@@ -64,7 +65,7 @@ export default function ProductDetails({ productSlug }) {
   };
 
   const handleAddToCart = async () => {
-    if (!userId) return toast.error("Please log in.");
+    if (!userId || !product) return toast.error(!userId ? "Please log in." : "Unit not synced.");
     const cart = carts[0];
     if (!cart) return toast.error("Registry not found.");
 
@@ -91,26 +92,17 @@ export default function ProductDetails({ productSlug }) {
     (item) => item.product_item_id === product?.id
   )?.order_product_id;
 
-  // if (loading) return (
-  //   <div className="min-h-screen flex flex-col items-center justify-center bg-[#fcfdfe]">
-  //     <Loader2 className="animate-spin text-blue-600 w-10 h-10 mb-4" />
-  //     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Decrypting Specs</p>
-  //   </div>
-  // );
-
-  // if (!product) return null;
-
   return (
     <div className=" min-h-screen pt-4  px-4 sm:px-6 lg:px-8">
       <main className="max-w-7xl mx-auto">
         {/* Top Header - Mobile Optimized */}
         <div className="flex items-center justify-between mb-6 lg:mb-8">
           <Link
-            href="/store"
+            href="/"
             className="flex items-center gap-2 text-[10px] font-black text-slate-400 hover:text-blue-600 uppercase tracking-widest transition-colors group"
           >
             <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="hidden sm:inline">Back to Inventory</span>
+            <span className="hidden sm:inline">Back</span>
             <span className="sm:hidden">Back</span>
           </Link>
         </div>
@@ -123,8 +115,8 @@ export default function ProductDetails({ productSlug }) {
               <div className="lg:sticky lg:top-32">
                 <div className="relative aspect-square w-full rounded-[20px] lg:rounded-[32px] overflow-hidden bg-white border border-white shadow-inner group">
                   <Image
-                    src={product.product_image_url}
-                    alt={product.name}
+                    src={product?.product_image_url || "/placeholder.svg"}
+                    alt={product?.name || "Product"}
                     fill
                     className="object-contain p-6 sm:p-12 group-hover:scale-105 transition-transform duration-700"
                     priority
@@ -141,17 +133,17 @@ export default function ProductDetails({ productSlug }) {
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <span className="px-2.5 py-1 bg-blue-50 text-blue-600 text-[9px] font-black uppercase tracking-widest rounded-lg border border-blue-100">
-                    {product.category || "Hardware"}
+                    {product?.category || "Hardware"}
                   </span>
                   <div className="h-1 w-1 bg-slate-200 rounded-full" />
                   <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">
-                    ID: #{product.id}
+                    ID: #{product?.id}
                   </span>
                 </div>
 
                 <div>
                   <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 uppercase tracking-tight leading-tight mb-2">
-                    {product.name}
+                    {product?.name}
                   </h1>
                   <div className="flex items-center gap-2 text-emerald-500">
                     <ShieldCheck className="w-4 h-4" />
@@ -164,10 +156,10 @@ export default function ProductDetails({ productSlug }) {
                 <div className="p-5 sm:p-6 bg-slate-50 rounded-[20px] lg:rounded-[24px] border border-slate-100">
                   <div className="flex items-baseline gap-4 mb-2">
                     <span className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter">
-                      ${product.price?.toFixed(0)}
+                      ${product?.price?.toFixed(0) || "0"}
                     </span>
                     <span className="text-slate-400 font-bold text-sm line-through opacity-50">
-                      $ {(product.price * 1.2).toFixed(0)}
+                      $ {((product?.price || 0) * 1.2).toFixed(0)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -219,7 +211,8 @@ export default function ProductDetails({ productSlug }) {
                   {/* Add to Cart Button */}
                   <button
                     onClick={handleAddToCart}
-                    className="w-full sm:flex-1 h-14 bg-slate-900 text-white rounded-[18px] font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 sm:gap-3 hover:bg-blue-600 transition-all shadow-xl active:scale-95"
+                    disabled={!product || loading}
+                    className="w-full sm:flex-1 h-14 bg-slate-900 text-white rounded-[18px] font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 sm:gap-3 hover:bg-blue-600 transition-all shadow-xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ShoppingCart className="w-4 h-4" />
                     <span className="truncate">Add</span>
@@ -228,7 +221,8 @@ export default function ProductDetails({ productSlug }) {
                   {/* Favourite Button */}
                   <button
                     onClick={handleFavouriteClick}
-                    className={`w-14 h-14 shrink-0 rounded-[18px] border flex items-center justify-center transition-all 
+                    disabled={!product || loading}
+                    className={`w-14 h-14 shrink-0 rounded-[18px] border flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed
         ${
           isFavourited
             ? "bg-red-50 border-red-100 text-red-500"

@@ -29,7 +29,7 @@ const RegistrySidebar = ({ active, setActive, counts, isExpanded }) => {
     >
       {/* Header Section */}
       <div className={`p-8 whitespace-nowrap ${!isExpanded ? "flex flex-col items-center px-0" : ""}`}>
-        <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] mb-1">
+        <p className="text-[13px] font-medium text-blue-600 uppercase tracking-[0.3em] mb-1">
             {isExpanded ? "System" : "SYS"}
         </p>
         {isExpanded ? (
@@ -66,7 +66,7 @@ const RegistrySidebar = ({ active, setActive, counts, isExpanded }) => {
                 {isExpanded && (
                   <motion.span 
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                    className={`text-[11px] font-black uppercase tracking-widest transition-colors
+                    className={`text-[13px] font-medium uppercase tracking-widest transition-colors
                       ${isSelected ? "text-slate-900" : "text-slate-500 group-hover:text-slate-900"}`}>
                     {folder.label}
                   </motion.span>
@@ -74,7 +74,7 @@ const RegistrySidebar = ({ active, setActive, counts, isExpanded }) => {
               </div>
 
               {isExpanded && (
-                <span className={`text-[10px] font-black px-2 py-1 rounded-lg border
+                <span className={`text-[11px] font-bold px-2 py-1 rounded-lg border
                   ${isSelected ? "bg-white border-blue-100 text-blue-600" : "bg-slate-50 border-slate-100 text-slate-400"}`}>
                   {counts[folder.id] || 0}
                 </span>
@@ -99,8 +99,8 @@ const SellerListItem = ({ seller, onSelect, isSelected }) => (
           ${seller.status === "approved" ? "bg-emerald-500" : seller.status === "rejected" ? "bg-rose-500" : "bg-amber-500 animate-pulse"}`} 
         />
         <div className="min-w-0">
-          <p className="text-[12px] font-black text-slate-900 uppercase tracking-tight truncate max-w-[180px]">{seller.company_name}</p>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">{seller.name}</p>
+          <p className="text-[13px] font-bold text-slate-900 uppercase tracking-tight truncate max-w-[180px]">{seller.company_name}</p>
+          <p className="text-[11px] font-medium text-slate-500 uppercase tracking-widest truncate">{seller.name}</p>
         </div>
       </div>
       <ChevronRight size={14} className={`transition-transform duration-300 ${isSelected ? "text-blue-600 translate-x-1" : "text-slate-200 group-hover:text-slate-400"}`} />
@@ -114,7 +114,7 @@ const SellerDetails = ({ seller, onClose, handleAction }) => {
       <div className="w-16 h-16 bg-slate-50 rounded-3xl flex items-center justify-center mb-4 border border-slate-100">
         <ShieldCheck size={32} className="text-slate-200" />
       </div>
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Select an entry for verification</p>
+      <p className="text-[13px] font-medium text-slate-500 uppercase tracking-[0.2em]">Select an entry for verification</p>
     </div>
   );
 
@@ -123,9 +123,9 @@ const SellerDetails = ({ seller, onClose, handleAction }) => {
       <div className="p-8 border-b border-slate-100 flex items-center justify-between">
         <div>
             <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Node ID: #{seller.id}</span>
+                <span className="text-[11px] font-bold text-blue-600 uppercase tracking-widest">Node ID: #{seller.id}</span>
                 <div className="w-1 h-1 bg-slate-200 rounded-full" />
-                <span className={`text-[10px] font-black uppercase tracking-widest ${seller.status === 'approved' ? 'text-emerald-500' : 'text-amber-500'}`}>
+                <span className={`text-[11px] font-bold uppercase tracking-widest ${seller.status === 'approved' ? 'text-emerald-500' : 'text-amber-500'}`}>
                     {seller.status || 'Pending Verification'}
                 </span>
             </div>
@@ -151,11 +151,11 @@ const SellerDetails = ({ seller, onClose, handleAction }) => {
                         <FileText size={24} />
                     </div>
                     <div>
-                        <p className="text-[11px] font-black text-slate-900 uppercase">Registry License</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-xs">PDF Document</p>
+                        <p className="text-[13px] font-bold text-slate-900 uppercase">Registry License</p>
+                        <p className="text-[11px] font-medium text-slate-500 uppercase tracking-widest">PDF Document</p>
                     </div>
                 </div>
-                <a href={seller.document_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-blue-600 hover:text-blue-600 transition-all shadow-sm">
+                <a href={seller.document_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-[13px] font-bold uppercase tracking-widest hover:border-blue-600 hover:text-blue-600 transition-all shadow-sm">
                     Open <ExternalLink size={12} />
                 </a>
             </div>
@@ -166,7 +166,7 @@ const SellerDetails = ({ seller, onClose, handleAction }) => {
                 {seller.status !== "approved" && (
                     <button
                         onClick={() => handleAction("approved", seller.id)}
-                        className="flex items-center gap-2 bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest py-4 px-8 rounded-2xl hover:bg-blue-600 transition-all shadow-xl shadow-slate-200"
+                        className="flex items-center gap-2 bg-slate-900 text-white font-bold text-[13px] uppercase tracking-widest py-4 px-8 rounded-2xl hover:bg-blue-600 transition-all shadow-xl shadow-slate-200"
                     >
                         <CheckCircle2 size={16} /> Authorize Hub
                     </button>
@@ -174,7 +174,7 @@ const SellerDetails = ({ seller, onClose, handleAction }) => {
                 {seller.status !== "approved" && seller.status !== "rejected" && (
                     <button
                         onClick={() => handleAction("rejected", seller.id)}
-                        className="flex items-center gap-2 bg-white border border-slate-200 text-rose-500 font-black text-[10px] uppercase tracking-widest py-4 px-8 rounded-2xl hover:bg-rose-50 hover:border-rose-100 transition-all"
+                        className="flex items-center gap-2 bg-white border border-slate-200 text-rose-500 font-bold text-[13px] uppercase tracking-widest py-4 px-8 rounded-2xl hover:bg-rose-50 hover:border-rose-100 transition-all"
                     >
                         <XCircle size={16} /> Reject Node
                     </button>
@@ -246,7 +246,7 @@ export default function InboxPage() {
                 placeholder="Find Email"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-50 border-none rounded-2xl py-2.5 pl-10 pr-4 text-xs font-bold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full bg-slate-50 border-none rounded-2xl py-2.5 pl-10 pr-4 text-[13px] font-medium text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
           </div>
@@ -255,7 +255,7 @@ export default function InboxPage() {
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-3 opacity-40">
                     <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-                    <p className="text-[9px] font-black uppercase tracking-widest">Scanning ...</p>
+                    <p className="text-[13px] font-medium uppercase tracking-widest text-slate-500">Scanning ...</p>
                 </div>
             ) : filteredCompanies.map((seller) => (
               <SellerListItem
@@ -283,10 +283,10 @@ export default function InboxPage() {
 // --- HELPERS ---
 const DetailBlock = ({ icon: Icon, label, value }) => (
     <div className="space-y-1">
-        <div className="flex items-center gap-2 text-slate-400">
+        <div className="flex items-center gap-2 text-slate-500">
             <Icon size={14} />
-            <span className="text-[10px] font-black uppercase tracking-widest">{label}</span>
+            <span className="text-[11px] font-bold uppercase tracking-widest">{label}</span>
         </div>
-        <p className="text-sm font-bold text-slate-900">{value || "---"}</p>
+        <p className="text-[13px] font-medium text-slate-900">{value || "---"}</p>
     </div>
 );

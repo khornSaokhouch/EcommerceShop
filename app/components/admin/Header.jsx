@@ -36,7 +36,7 @@ export default function Header({ user, onMenuButtonClick, onLogoutClick }) {
           <input 
             type="text" 
             placeholder="Search Registry..." 
-            className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-2.5 pl-11 pr-4 text-sm font-semibold focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all outline-none"
+            className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-2.5 pl-11 pr-4 text-[13px] font-medium text-slate-500 focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all outline-none"
           />
         </div>
       </div>
@@ -48,14 +48,14 @@ export default function Header({ user, onMenuButtonClick, onLogoutClick }) {
         <div className="relative">
           <button onClick={() => { setLanguageOpen(!isLanguageOpen); setProfileOpen(false); }} className="flex items-center gap-2 p-2 rounded-xl hover:bg-slate-50">
             <Globe size={18} className="text-slate-400" />
-            <span className="hidden sm:block text-xs font-bold uppercase tracking-widest">EN</span>
+            <span className="hidden sm:block text-[13px] font-medium text-slate-500 uppercase tracking-widest">EN</span>
             <ChevronDown size={14} className={`text-slate-300 transition-transform ${isLanguageOpen ? 'rotate-180' : ''}`} />
           </button>
           <AnimatePresence>
             {isLanguageOpen && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute right-0 mt-2 w-48 bg-white border border-slate-100 rounded-[24px] shadow-2xl p-2 z-50">
-                <button className="flex items-center justify-between w-full p-3 rounded-xl hover:bg-blue-50 text-blue-600 font-bold text-xs">English <ShieldCheck size={14} /></button>
-                <button className="flex items-center w-full p-3 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-xs">Khmer (KH)</button>
+                <button className="flex items-center justify-between w-full p-3 rounded-xl hover:bg-blue-50 text-blue-600 font-medium text-[13px]">English <ShieldCheck size={14} /></button>
+                <button className="flex items-center w-full p-3 rounded-xl hover:bg-slate-50 text-slate-500 font-medium text-[13px]">Khmer (KH)</button>
               </motion.div>
             )}
           </AnimatePresence>
@@ -84,10 +84,10 @@ export default function Header({ user, onMenuButtonClick, onLogoutClick }) {
                    </div>
                 </div>
                 <div className="p-2">
-                  <Link href="/admin/account" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-xs"><User size={16} /> Profile Info</Link>
-                  <Link href="/admin/settings" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-xs"><Settings size={16} /> Config Settings</Link>
+                  <Link href="/admin/account" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-slate-50 text-slate-500 font-medium text-[13px]"><User size={16} /> Profile Info</Link>
+                  <Link href="/admin/settings" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-slate-50 text-slate-500 font-medium text-[13px]"><Settings size={16} /> Config Settings</Link>
                   <div className="h-px bg-slate-50 my-1 mx-2" />
-                  <button onClick={() => { setProfileOpen(false); onLogoutClick(); }} className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-red-50 text-red-500 font-bold text-xs transition-colors"><LogOut size={16} /> Logout Account</button>
+                  <button onClick={() => { setProfileOpen(false); onLogoutClick(); }} className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-red-50 text-red-500 font-medium text-[13px] transition-colors"><LogOut size={16} /> Logout Account</button>
                 </div>
               </motion.div>
             )}

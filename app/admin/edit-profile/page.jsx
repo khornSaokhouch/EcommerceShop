@@ -27,20 +27,20 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, isSubmitting }) => (
             <Save className="w-7 h-7 text-blue-600" />
           </div>
           <h2 className="text-xl font-black text-slate-900 mb-2">Save Changes?</h2>
-          <p className="text-sm text-slate-500 mb-8 leading-relaxed">
+          <p className="text-[13px] font-medium text-slate-500 mb-8 leading-relaxed">
             Your profile details will be updated across the entire Technocore ecosystem.
           </p>
           <div className="grid grid-cols-2 gap-3">
             <button 
               onClick={onClose} 
-              className="py-3.5 text-sm font-bold text-slate-500 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors"
+              className="py-3.5 text-[13px] font-bold text-slate-500 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors"
             >
               Cancel
             </button>
             <button 
               onClick={onConfirm} 
               disabled={isSubmitting} 
-              className="py-3.5 text-sm font-bold text-white bg-blue-600 rounded-2xl hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-200"
+              className="py-3.5 text-[13px] font-bold text-white bg-blue-600 rounded-2xl hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-200"
             >
               {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Confirm"}
             </button>
@@ -134,7 +134,7 @@ export default function EditProfilePage() {
       <div className="p-4 sm:p-8">
         <div className="mb-10">
             <h1 className="text-2xl font-black text-slate-900 mb-2">Edit Profile</h1>
-            <p className="text-sm font-medium text-slate-500">Manage your identity and public information.</p>
+            <p className="text-[13px] font-medium text-slate-500">Manage your identity and public information.</p>
         </div>
 
         <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }} className="space-y-10">
@@ -168,13 +168,13 @@ export default function EditProfilePage() {
             
             <div className="text-center sm:text-left space-y-2">
               <h4 className="font-bold text-slate-900">Profile Picture</h4>
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">
+              <p className="text-[11px] font-medium text-slate-400 uppercase tracking-widest leading-relaxed">
                 PNG, JPG or WEBP <br/> Max 5MB file size
               </p>
               {imagePreview && (
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[10px] font-black uppercase">New Photo Ready</span>
+                  <span className="text-[11px] font-bold uppercase">New Photo Ready</span>
                 </div>
               )}
             </div>
@@ -183,7 +183,7 @@ export default function EditProfilePage() {
           {/* Form Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-2">
-              <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Full Name</label>
+              <label className="text-[13px] font-medium text-slate-500 uppercase tracking-[0.2em] ml-1">Full Name</label>
               <div className="relative group">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
                 <input
@@ -191,27 +191,27 @@ export default function EditProfilePage() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full py-4 pl-12 pr-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-800 focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all outline-none"
+                  className="w-full py-4 pl-12 pr-4 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-medium text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all outline-none"
                   required
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Email Address</label>
+              <label className="text-[13px] font-medium text-slate-500 uppercase tracking-[0.2em] ml-1">Email Address</label>
               <div className="relative opacity-60">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <input
                   type="email"
                   value={user.email}
                   disabled
-                  className="w-full py-4 pl-12 pr-4 bg-slate-100 border border-slate-200 rounded-2xl text-sm font-bold text-slate-500 cursor-not-allowed"
+                  className="w-full py-4 pl-12 pr-4 bg-slate-100 border border-slate-200 rounded-2xl text-[13px] font-medium text-slate-500 cursor-not-allowed"
                 />
               </div>
             </div>
             
             <div className="space-y-2">
-              <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Phone Number</label>
+              <label className="text-[13px] font-medium text-slate-500 uppercase tracking-[0.2em] ml-1">Phone Number</label>
               <div className="relative group">
                 <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
                 <input
@@ -220,7 +220,7 @@ export default function EditProfilePage() {
                   value={formData.phone_number}
                   onChange={handleChange}
                   placeholder="+1 234 567 890"
-                  className="w-full py-4 pl-12 pr-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-800 focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all outline-none"
+                  className="w-full py-4 pl-12 pr-4 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-medium text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all outline-none"
                 />
               </div>
             </div>
@@ -230,13 +230,13 @@ export default function EditProfilePage() {
           <div className="flex items-center justify-end gap-4 pt-8 border-t border-slate-50">
             <Link
               href="/profile"
-              className="px-8 py-4 text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors"
+              className="px-8 py-4 text-[13px] font-bold text-slate-500 hover:text-slate-900 transition-colors"
             >
               Cancel
             </Link>
             <button
               type="submit"
-              className="flex items-center justify-center gap-2 px-10 py-4 bg-blue-600 text-white rounded-[20px] font-black text-sm shadow-xl shadow-blue-200 hover:bg-blue-700 hover:-translate-y-0.5 active:translate-y-0 transition-all"
+              className="flex items-center justify-center gap-2 px-10 py-4 bg-blue-600 text-white rounded-[20px] font-bold text-[13px] shadow-xl shadow-blue-200 hover:bg-blue-700 hover:-translate-y-0.5 active:translate-y-0 transition-all"
             >
               <Save className="w-4 h-4" />
               Update Profile

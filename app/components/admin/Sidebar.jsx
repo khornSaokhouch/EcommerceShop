@@ -3,21 +3,23 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
-  LayoutDashboard, Package, Building2, Inbox, ShoppingCart, 
-  Tag, CreditCard, Calendar, X, Settings, LogOut, 
-  ChevronRight, Database 
+  LayoutDashboard, Users, Building2, Inbox, ShoppingCart, 
+  Tag, CreditCard, Calendar, Box, Palette, Ruler, Package ,Settings ,LogOut ,ChevronRight 
 } from "lucide-react";
 import { motion } from "framer-motion";
 
 const mainLinks = [
   { href: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "inbox", label: "InBox", icon: Inbox },
-  { href: "users", label: "User Registry", icon: Database },
-  { href: "company", label: "Partner Nodes", icon: Building2 },
-  { href: "category", label: "Category", icon: Tag },
+  { href: "inbox", label: "Inbox", icon: Inbox },
+  { href: "users", label: "Users", icon: Users },               // changed Database → Users
+  { href: "company", label: "Company", icon: Building2 },      // Partner Nodes → Partners
+  { href: "category", label: "Category", icon: Tag },         // make plural
+  { href: "types", label: "Types", icon: Box },                 // Package → Box
   { href: "products", label: "Products", icon: Package },
-  { href: "events", label: "Events", icon: Calendar }
-
+  { href: "events", label: "Events", icon: Calendar },
+  { href: "brands", label: "Brands", icon: Tag },
+  { href: "sizes", label: "Sizes", icon: Ruler },               // new icon for size
+  { href: "colors", label: "Colors", icon: Palette },           // new icon for colors
 ];
 
 export default function Sidebar({ onClose, onLogoutClick }) {
@@ -71,16 +73,16 @@ export default function Sidebar({ onClose, onLogoutClick }) {
         <div>
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4 px-3">Configuration</p>
           <nav className="space-y-1">
-            <SidebarLink link={{ href: "payment-type", label: "Pay Protocols", icon: CreditCard }} pathname={pathname} onClick={handleLinkClick} />
-            <SidebarLink link={{ href: "order-status", label: "Node Status", icon: ShoppingCart }} pathname={pathname} onClick={handleLinkClick} />
-            <SidebarLink link={{ href: "settings", label: "Core Config", icon: Settings }} pathname={pathname} onClick={handleLinkClick} />
+            <SidebarLink link={{ href: "payment-type", label: "Payments", icon: CreditCard }} pathname={pathname} onClick={handleLinkClick} />
+            <SidebarLink link={{ href: "order-status", label: "Status", icon: ShoppingCart }} pathname={pathname} onClick={handleLinkClick} />
+            <SidebarLink link={{ href: "settings", label: "Settings", icon: Settings }} pathname={pathname} onClick={handleLinkClick} />
           </nav>
         </div>
       </div>
 
       {/* Bottom Action */}
       <div className="mt-auto pt-6 border-t border-slate-50">
-        <button onClick={onLogoutClick} className="group w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all font-bold text-[11px] uppercase tracking-widest">
+        <button onClick={onLogoutClick} className="group w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all font-bold text-[13px] uppercase tracking-widest">
           <LogOut size={18} />
           <span>Exit Console</span>
         </button>
@@ -121,7 +123,7 @@ function SidebarLink({ link, pathname, onClick }) {
         </div>
 
         {/* Label */}
-        <span className={`text-[11px] font-black uppercase tracking-widest transition-colors
+        <span className={`text-[13px] font-medium uppercase tracking-widest transition-colors
           ${isActive ? "text-slate-900" : "text-slate-500 group-hover:text-slate-800"}`}>
           {link.label}
         </span>

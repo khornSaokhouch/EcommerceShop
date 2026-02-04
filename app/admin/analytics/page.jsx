@@ -67,8 +67,8 @@ export default function AdminAnalytics() {
           <div key={idx} className="bg-white shadow rounded-xl p-6 flex items-center space-x-4 hover:shadow-lg transition">
             <div className="p-3 bg-gray-100 rounded-full">{metric.icon}</div>
             <div>
-              <p className="text-gray-500 text-sm">{metric.title}</p>
-              <p className="text-2xl font-bold text-gray-900">{metric.value}</p>
+              <p className="text-slate-500 text-[13px] font-medium">{metric.title}</p>
+              <p className="text-2xl font-bold text-slate-900">{metric.value}</p>
             </div>
           </div>
         ))}
@@ -77,12 +77,12 @@ export default function AdminAnalytics() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl p-6 shadow hover:shadow-lg transition">
-          <h2 className="text-lg font-semibold mb-4">Revenue Overview</h2>
+          <h2 className="text-[13px] font-bold text-slate-900 uppercase tracking-widest mb-4">Revenue Overview</h2>
           <Line data={salesData} options={salesOptions} />
         </div>
 
         <div className="bg-white rounded-xl p-6 shadow hover:shadow-lg transition">
-          <h2 className="text-lg font-semibold mb-4">Revenue Bar Chart</h2>
+          <h2 className="text-[13px] font-bold text-slate-900 uppercase tracking-widest mb-4">Revenue Bar Chart</h2>
           <Bar data={salesData} options={salesOptions} />
         </div>
       </div>

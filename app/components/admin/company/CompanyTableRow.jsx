@@ -26,7 +26,7 @@ export function CompanyTableRow({ company, index, startIndex, onEdit, onDelete }
     <tr className="hover:bg-slate-50/30 transition-colors group">
       {/* 1. ID Index Column */}
       <td className="px-8 py-5 whitespace-nowrap">
-        <span className="text-xs font-black text-slate-300 group-hover:text-blue-400 transition-colors">
+        <span className="text-[13px] font-medium text-slate-300 group-hover:text-blue-400 transition-colors">
           {String(startIndex + index + 1).padStart(2, '0')}
         </span>
       </td>
@@ -40,7 +40,7 @@ export function CompanyTableRow({ company, index, startIndex, onEdit, onDelete }
                 {imageUrl ? (
                   <img src={imageUrl} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-sm font-black text-blue-600">{initials}</span>
+                  <span className="text-[13px] font-bold text-blue-600">{initials}</span>
                 )}
               </div>
             </div>
@@ -48,12 +48,12 @@ export function CompanyTableRow({ company, index, startIndex, onEdit, onDelete }
             <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-white shadow-sm" />
           </div>
           <div className="min-w-0">
-            <p className="text-[13px] font-black text-slate-900 uppercase tracking-tight truncate max-w-[200px]">
+            <p className="text-[13px] font-bold text-slate-900 uppercase tracking-tight truncate max-w-[200px]">
               {company.name}
             </p>
-            <div className="flex items-center gap-1.5 text-slate-400">
+            <div className="flex items-center gap-1.5 text-slate-500">
               <Mail size={12} />
-              <p className="text-[10px] font-bold tracking-wide truncate">{company.email}</p>
+              <p className="text-[11px] font-medium tracking-wide truncate">{company.email}</p>
             </div>
           </div>
         </div>
@@ -68,7 +68,7 @@ export function CompanyTableRow({ company, index, startIndex, onEdit, onDelete }
       <td className="px-8 py-5 whitespace-nowrap">
         <div className="flex items-center gap-2 text-slate-500">
           <Calendar size={13} className="text-slate-300" />
-          <span className="text-[11px] font-black uppercase tracking-widest">
+          <span className="text-[13px] font-medium uppercase tracking-widest">
             {new Date(company.created_at).toLocaleDateString("en-US", {
               year: "numeric",
               month: "short",

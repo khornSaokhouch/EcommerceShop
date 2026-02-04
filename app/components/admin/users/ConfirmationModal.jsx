@@ -30,8 +30,8 @@ export function ConfirmationModal({ isOpen, onClose, onConfirm, userName }) {
                   <Trash2 className="h-6 w-6 text-red-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Delete User</h2>
-                  <p className="text-sm text-gray-500">This action cannot be undone.</p>
+                  <h2 className="text-xl font-bold text-gray-900 uppercase tracking-tighter">Delete User</h2>
+                  <p className="text-[13px] font-medium text-slate-500 uppercase tracking-widest">Protocol: Direct Purge</p>
                 </div>
               </div>
               <button
@@ -43,8 +43,8 @@ export function ConfirmationModal({ isOpen, onClose, onConfirm, userName }) {
             </div>
 
             <div className="mb-6 p-4 bg-red-50 rounded-lg border border-red-200">
-              <p className="text-gray-700">
-                Are you sure you want to delete <span className="font-semibold text-gray-900">{userName}</span>?
+              <p className="text-[13px] font-medium text-slate-700">
+                Are you sure you want to delete <span className="font-bold text-red-600 uppercase">{userName}</span>? This action is irreversible.
               </p>
             </div>
 
@@ -52,16 +52,16 @@ export function ConfirmationModal({ isOpen, onClose, onConfirm, userName }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2.5 text-[13px] font-bold uppercase tracking-widest text-slate-400 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
               >
-                Cancel
+                CANCEL
               </button>
               <button
                 type="button"
                 onClick={onConfirm}
-                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-sm"
+                className="flex-1 px-4 py-2.5 text-[13px] font-bold uppercase tracking-widest text-white bg-red-500 rounded-xl hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20"
               >
-                Delete User
+                OKAY
               </button>
             </div>
           </motion.div>

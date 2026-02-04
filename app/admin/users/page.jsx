@@ -9,11 +9,16 @@ import { UserTable } from "../../components/admin/users/UserTable";
 import { EditUserModal } from "../../components/admin/users/EditUserModal";
 import { ConfirmationModal } from "../../components/admin/users/ConfirmationModal";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useAuthStore } from '../../stores/authStore';
+
+
 
 export default function UsersPage() {
   const { users, loading, error, fetchAllUsers, updateRole, deleteUser, fetchUser } = useUserStore();
   
   // States
+  const token = useAuthStore((state) => state.token);
+
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,12 +28,21 @@ export default function UsersPage() {
 
   const itemsPerPage = 10;
 
-  useEffect(() => {
-    (async () => {
+useEffect(() => {
+  (async () => {
+    if (!token) return;
+
+    try {
+      await useAuthStore.getState().loginWithToken(token);
       await fetchUser();
       await fetchAllUsers();
-    })();
-  }, [fetchUser, fetchAllUsers]);
+    } catch (err) {
+      console.error('Failed to restore session', err);
+    }
+  })();
+}, [fetchUser, fetchAllUsers]);
+
+
 
   // 1. Filter Logic (Hide Admin, Apply Search, Apply Role Filter)
   const processedUsers = useMemo(() => {
@@ -102,7 +116,7 @@ export default function UsersPage() {
 
         {/* --- PAGINATION CONTROLS --- */}
         <div className="px-8 py-6 bg-slate-50/50 border-t border-slate-50 flex items-center justify-between">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+          <p className="text-[13px] font-medium text-slate-500 uppercase tracking-widest">
             Page {currentPage} of {totalPages || 1}
           </p>
           <div className="flex gap-2">

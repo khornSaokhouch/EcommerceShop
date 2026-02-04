@@ -70,7 +70,7 @@ export default function CompanyListPage() {
   };
 
   if (checkingAuth) return <div className="min-h-screen flex items-center justify-center bg-white"><Loader2 className="animate-spin text-blue-600" /></div>;
-  if (!authorized) return <div className="h-screen flex items-center justify-center bg-white px-6"><div className="text-center p-10 bg-red-50 rounded-[32px] border border-red-100 max-w-sm"><ShieldAlert className="mx-auto mb-4 text-red-500" size={40}/><h2 className="text-xl font-black text-red-900 uppercase">Access Denied</h2><p className="text-red-600 text-sm mt-2 font-medium">Registry Restricted to System Admins</p></div></div>;
+  if (!authorized) return <div className="h-screen flex items-center justify-center bg-white px-6"><div className="text-center p-10 bg-red-50 rounded-[32px] border border-red-100 max-w-sm"><ShieldAlert className="mx-auto mb-4 text-red-500" size={40}/><h2 className="text-xl font-bold text-red-900 uppercase">Access Denied</h2><p className="text-red-600 text-[13px] mt-2 font-medium">Registry Restricted to System Admins</p></div></div>;
 
   return (
     <div className="space-y-8 pb-10 font-sans">
@@ -88,7 +88,7 @@ export default function CompanyListPage() {
         />
 
         <div className="px-8 py-6 bg-slate-50/50 border-t border-slate-50 flex items-center justify-between">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Node Registry Page {currentPage}/{totalPages || 1}</p>
+          <p className="text-[13px] font-medium text-slate-500 uppercase tracking-widest">Node Registry Page {currentPage}/{totalPages || 1}</p>
           <div className="flex gap-2">
             <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className="p-2.5 bg-white border border-slate-200 rounded-xl disabled:opacity-20 hover:text-blue-600 transition-all shadow-sm"><ChevronLeft size={18}/></button>
             <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage(p => p + 1)} className="p-2.5 bg-white border border-slate-200 rounded-xl disabled:opacity-20 hover:text-blue-600 transition-all shadow-sm"><ChevronRight size={18}/></button>

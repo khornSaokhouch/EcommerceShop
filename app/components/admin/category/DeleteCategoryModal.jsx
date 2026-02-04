@@ -14,13 +14,13 @@ const DeleteCategoryModal = ({ isOpen, onClose, category, onConfirm }) => {
           <div className="w-16 h-16 rounded-3xl bg-red-50 flex items-center justify-center mb-6 mx-auto">
             <Trash2 className="w-8 h-8 text-red-500" />
           </div>
-          <h2 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">Purge Node?</h2>
-          <p className="text-sm text-slate-500 mb-8 leading-relaxed font-medium">
+          <h2 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">Delete Category?</h2>
+          <p className="text-[13px] text-slate-500 mb-8 leading-relaxed font-medium">
              Removing <span className="text-slate-900 font-bold underline decoration-red-500">{category.name}</span> will clear this classification from the hardware registry.
           </p>
           <div className="grid grid-cols-2 gap-3">
-            <button onClick={onClose} className="py-4 text-xs font-black uppercase text-slate-400 bg-slate-50 rounded-2xl hover:bg-slate-100">Cancel</button>
-            <button onClick={onConfirm} className="py-4 text-xs font-black uppercase text-white bg-red-500 rounded-2xl hover:bg-red-600 shadow-xl shadow-red-200">Execute</button>
+            <button onClick={onClose} className="py-4 text-[13px] font-bold uppercase text-slate-400 bg-slate-50 rounded-2xl hover:bg-slate-100">Cancel</button>
+            <button onClick={onConfirm} className="py-4 text-[13px] font-bold uppercase text-white bg-red-500 rounded-2xl hover:bg-red-600 shadow-xl shadow-red-200">Okaay</button>
           </div>
         </motion.div>
       </div>

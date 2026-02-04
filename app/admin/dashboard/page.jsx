@@ -101,7 +101,7 @@ export default function DashboardPage() {
   if (loading) return (
     <div className="h-[70vh] flex flex-col items-center justify-center bg-white">
       <Loader2 className="animate-spin text-blue-600 mb-4" size={32} />
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Accessing Command Core...</p>
+      <p className="text-[13px] font-medium text-slate-500 uppercase tracking-[0.3em]">Accessing Command Core...</p>
     </div>
   );
 
@@ -120,8 +120,8 @@ export default function DashboardPage() {
            </h1>
         </div>
         <div className="flex gap-3">
-            <button className="px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all">Audit Logs</button>
-            <button className="px-5 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-200">Broadcast Node</button>
+            <button className="px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-medium text-slate-500 uppercase tracking-widest hover:bg-slate-100 transition-all">Audit Logs</button>
+            <button className="px-5 py-3 bg-slate-900 text-white rounded-2xl text-[13px] font-bold uppercase tracking-widest shadow-xl shadow-slate-200">Broadcast Node</button>
         </div>
       </div>
 
@@ -158,12 +158,12 @@ export default function DashboardPage() {
         <div className="lg:col-span-8 bg-white rounded-[32px] border border-slate-100 p-8 shadow-sm">
             <div className="flex items-center justify-between mb-10">
                 <div>
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Registry Activity</h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global Sourcing Stream</p>
+                    <h3 className="text-[13px] font-bold text-slate-900 uppercase tracking-widest">Registry Activity</h3>
+                    <p className="text-[13px] font-medium text-slate-500 uppercase tracking-widest">Global Sourcing Stream</p>
                 </div>
                 <div className="bg-slate-50 p-1.5 rounded-xl border border-slate-100 flex gap-1">
-                    <button className="px-3 py-1 bg-white text-blue-600 text-[10px] font-black rounded-lg shadow-sm border border-slate-100">Live</button>
-                    <button className="px-3 py-1 text-slate-400 text-[10px] font-black">24H</button>
+                    <button className="px-3 py-1 bg-white text-blue-600 text-[13px] font-medium rounded-lg shadow-sm border border-slate-100">Live</button>
+                    <button className="px-3 py-1 text-slate-500 text-[13px] font-medium">24H</button>
                 </div>
             </div>
             <div className="h-[300px]">
@@ -172,7 +172,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="lg:col-span-4 bg-white rounded-[32px] border border-slate-100 p-8 shadow-sm flex flex-col">
-            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-10">System Load</h3>
+            <h3 className="text-[13px] font-bold text-slate-900 uppercase tracking-widest mb-10">System Load</h3>
             <div className="flex-1 min-h-[200px]">
                 <Bar data={chartData} options={barOptions} />
             </div>
@@ -198,13 +198,13 @@ export default function DashboardPage() {
                                 <Zap size={18} />
                             </div>
                             <div>
-                                <p className="text-xs font-black text-slate-900 uppercase tracking-tight">{item.id}</p>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase">{item.node} • {item.action}</p>
+                                <p className="text-[13px] font-bold text-slate-900 uppercase tracking-tight">{item.id}</p>
+                                <p className="text-[13px] font-medium text-slate-500 uppercase">{item.node} • {item.action}</p>
                             </div>
                         </div>
                         <div className="text-right">
-                            <p className="text-[10px] font-black text-slate-900 uppercase">{item.time}</p>
-                            <span className={`text-[9px] font-black uppercase tracking-widest ${item.status === 'success' ? 'text-emerald-500' : 'text-amber-500'}`}>
+                            <p className="text-[13px] font-bold text-slate-900 uppercase">{item.time}</p>
+                            <span className={`text-[11px] font-bold uppercase tracking-widest ${item.status === 'success' ? 'text-emerald-500' : 'text-amber-500'}`}>
                                 {item.status}
                             </span>
                         </div>
@@ -218,7 +218,7 @@ export default function DashboardPage() {
             <h3 className="text-xs font-black text-blue-400 uppercase tracking-widest mb-8">Node Distribution</h3>
             <div className="h-56 flex flex-col items-center justify-center border border-white/5 rounded-2xl bg-white/5 backdrop-blur-sm">
                 <Globe className="text-white opacity-10 animate-pulse" size={80} />
-                <p className="text-[10px] font-black text-slate-500 uppercase mt-4 tracking-[0.3em]">Satellite Feed: Active</p>
+                <p className="text-[13px] font-medium text-slate-500 uppercase mt-4 tracking-[0.3em]">Satellite Feed: Active</p>
             </div>
             <div className="mt-8 flex justify-between items-end">
                 <div>
@@ -248,9 +248,9 @@ function MetricCard({ label, value, sub, icon: Icon, color, spark }) {
                 <Sparkline data={spark} color={color} />
             </div>
             <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{label}</p>
+                <p className="text-[13px] font-medium text-slate-500 uppercase tracking-[0.2em] mb-1">{label}</p>
                 <h4 className="text-4xl font-black text-slate-900 tracking-tighter">{value}</h4>
-                <p className="text-[10px] font-bold text-slate-300 uppercase mt-2">{sub}</p>
+                <p className="text-[13px] font-medium text-slate-400 uppercase mt-2">{sub}</p>
             </div>
         </div>
     );
@@ -261,9 +261,9 @@ function StatusRow({ label, value, color }) {
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
                 <div className={`w-1.5 h-1.5 rounded-full ${color}`} />
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{label}</span>
+                <span className="text-[13px] font-medium text-slate-500 uppercase tracking-widest">{label}</span>
             </div>
-            <span className="text-[10px] font-black text-slate-900">{value}</span>
+            <span className="text-[13px] font-medium text-slate-900">{value}</span>
         </div>
     )
 }

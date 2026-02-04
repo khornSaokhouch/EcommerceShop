@@ -1,7 +1,7 @@
 "use client";
 
 import Footer from "../components/Footer";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/nabvar/Navbar";
 import { motion } from "framer-motion";
 import { Store, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";

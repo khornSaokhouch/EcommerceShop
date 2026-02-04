@@ -9,11 +9,11 @@ export function UserTable({ users, loading, startIndex, onEdit, onDelete }) {
       <table className="w-full text-left border-collapse">
         <thead className="bg-slate-50/50">
           <tr>
-            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest"># ID</th>
-            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Identity Node</th>
-            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Node Protocol</th>
-            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Connection</th>
-            <th className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+            <th className="px-8 py-5 text-[13px] font-medium text-slate-500 uppercase tracking-widest"># ID</th>
+            <th className="px-8 py-5 text-[13px] font-medium text-slate-500 uppercase tracking-widest">USER NAME & EMAIL</th>
+            <th className="px-8 py-5 text-[13px] font-medium text-slate-500 uppercase tracking-widest">ROLE</th>
+            <th className="px-8 py-5 text-[13px] font-medium text-slate-500 uppercase tracking-widest">CREATED AT</th>
+            <th className="px-8 py-5 text-right text-[13px] font-medium text-slate-500 uppercase tracking-widest">ACTIONS</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-50">
@@ -28,14 +28,14 @@ export function UserTable({ users, loading, startIndex, onEdit, onDelete }) {
                     {user.profile_image_url ? <img src={user.profile_image_url} className="w-full h-full object-cover" /> : user.name[0]}
                   </div>
                   <div>
-                    <p className="text-sm font-black text-slate-900 uppercase tracking-tight">{user.name}</p>
-                    <p className="text-[10px] font-bold text-slate-400 tracking-widest uppercase">{user.email}</p>
+                    <p className="text-[13px] font-bold text-slate-900 uppercase tracking-tight">{user.name}</p>
+                    <p className="text-[13px] font-medium text-slate-500 tracking-widest uppercase">{user.email}</p>
                   </div>
                 </div>
               </td>
               <td className="px-8 py-5"><RoleBadge role={user.role} /></td>
               <td className="px-8 py-5">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{new Date(user.created_at).toLocaleDateString()}</span>
+                <span className="text-[13px] font-medium text-slate-500 uppercase tracking-widest">{new Date(user.created_at).toLocaleDateString()}</span>
               </td>
               <td className="px-8 py-5 text-right">
                 <div className="flex justify-end gap-2">
@@ -54,6 +54,6 @@ export function UserTable({ users, loading, startIndex, onEdit, onDelete }) {
 const TableLoader = () => (
     <div className="p-20 text-center flex flex-col items-center gap-4">
         <Loader2 className="animate-spin text-blue-600 w-10 h-10" />
-        <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest animate-pulse">Syncing Registry Nodes...</p>
+        <p className="text-[13px] font-medium text-slate-500 uppercase tracking-widest animate-pulse">Syncing Registry Nodes...</p>
     </div>
 );

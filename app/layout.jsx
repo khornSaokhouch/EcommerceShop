@@ -10,7 +10,10 @@ export default function RootLayout({ children }) {
   return (
     // ✅ suppressHydrationWarning fix the "attributes mismatch" error caused by extensions
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-      <body className="antialiased bg-white text-slate-900 min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+      <body 
+        className="antialiased bg-white text-slate-900 min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white"
+        suppressHydrationWarning
+      >
         
         {/* --- SYSTEM AMBIENCE --- */}
         <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">

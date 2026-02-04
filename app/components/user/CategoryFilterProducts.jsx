@@ -117,7 +117,7 @@ const CategoryFilterProducts = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto flex flex-col lg:flex-row min-h-screen gap-10 pt-6 pb-20 px-4 lg:px-8 ">
+    <div className="max-w-full mx-auto flex flex-col lg:flex-row min-h-screen gap-10 pt-6 pb-20 px-4 lg:px-8 ">
       
       {/* Sidebar */}
       <aside className="w-full lg:w-72 shrink-0">

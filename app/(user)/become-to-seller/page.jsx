@@ -64,10 +64,10 @@ export default function BecomeCompanyForm() {
         
         {/* Static Header Section */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-4 border border-blue-100">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] mb-4 border border-blue-100">
             <ShieldCheck className="w-3 h-3" /> Merchant Registry
           </div>
-          <h1 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter uppercase mb-4">
+          <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 tracking-tighter uppercase mb-4">
             Initialize <span className="text-blue-600">Merchant Node</span>
           </h1>
           <p className="text-slate-500 font-medium max-w-lg mx-auto leading-relaxed">
@@ -82,7 +82,7 @@ export default function BecomeCompanyForm() {
             
             {/* HUB LOCATION */}
             <div>
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
                     <MapPin className="w-3.5 h-3.5" /> Sourcing Hub Location
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -96,7 +96,7 @@ export default function BecomeCompanyForm() {
                     />
                     
                     <div className="relative" ref={dropdownRef}>
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Province / City Node</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Province / City Node</label>
                         <div className="relative group">
                             <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-600 transition-colors" />
                             <input
@@ -107,7 +107,7 @@ export default function BecomeCompanyForm() {
                                 onFocus={() => setIsDropdownOpen(true)}
                                 required
                                 placeholder="Search Hub..."
-                                className="w-full py-4 pl-12 pr-4 bg-slate-50 border border-transparent rounded-2xl text-sm font-bold text-slate-800 focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all outline-none"
+                                className="w-full py-4 pl-12 pr-4 bg-slate-50 border border-transparent rounded-2xl text-sm font-medium text-slate-800 focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all outline-none"
                             />
                         </div>
                         {isDropdownOpen && (
@@ -115,7 +115,7 @@ export default function BecomeCompanyForm() {
                                 {filteredProvinces.map((province) => (
                                     <li
                                         key={province}
-                                        className="px-4 py-3 text-xs font-bold text-slate-600 hover:bg-blue-50 hover:text-blue-600 rounded-xl cursor-pointer transition-colors"
+                                        className="px-4 py-3 text-xs font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-600 rounded-xl cursor-pointer transition-colors"
                                         onClick={() => handleProvinceSelect(province)}
                                     >
                                         {province}
@@ -131,7 +131,7 @@ export default function BecomeCompanyForm() {
 
             {/* ORGANIZATIONAL IDENTITY */}
             <div>
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
                     <Building2 className="w-3.5 h-3.5" /> Organizational Identity
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -144,13 +144,13 @@ export default function BecomeCompanyForm() {
 
             {/* DOCUMENTATION */}
             <div className="p-8 bg-slate-50/50 rounded-[32px] border border-slate-100">
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
                     <FileText className="w-3.5 h-3.5" /> Registry Verification Data
                 </h3>
                 <label className="relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-[24px] bg-white cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-all group">
                     <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center">
                         <UploadCloud className="w-8 h-8 text-slate-300 group-hover:text-blue-500 mb-2 transition-colors" />
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-blue-600 px-4">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-blue-600 px-4">
                             {form.document ? form.document.name : "Transmit Business License (PDF / DOCX)"}
                         </p>
                     </div>
@@ -178,7 +178,7 @@ export default function BecomeCompanyForm() {
                             <Loader2 className="w-6 h-6 animate-spin text-white" />
                         ) : (
                             <>
-                                <span className="text-[11px] font-black uppercase tracking-[0.25em]">Initialize Registration</span>
+                                <span className="text-[11px] font-bold uppercase tracking-[0.25em]">Initialize Registration</span>
                                 <ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1.5" />
                             </>
                         )}
@@ -186,7 +186,7 @@ export default function BecomeCompanyForm() {
                 </button>
                 <div className="mt-8 flex items-center justify-center gap-2 opacity-40">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                    <span className="text-[9px] font-black text-slate-900 uppercase tracking-widest">AES-256 Protocol Enabled</span>
+                    <span className="text-[9px] font-bold text-slate-900 uppercase tracking-widest">AES-256 Protocol Enabled</span>
                 </div>
             </div>
           </form>
@@ -199,7 +199,7 @@ export default function BecomeCompanyForm() {
 // Static Styled Input Component (No Motion)
 const StyledInput = ({ label, icon: Icon, ...props }) => (
   <div className="space-y-2">
-    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">
+    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">
       {label} {props.required && <span className="text-blue-500">*</span>}
     </label>
     <div className="relative group">
@@ -208,7 +208,7 @@ const StyledInput = ({ label, icon: Icon, ...props }) => (
       </div>
       <input
         {...props}
-        className="w-full py-4 pl-12 pr-4 bg-slate-50 border border-transparent rounded-2xl text-sm font-bold text-slate-800 focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all outline-none"
+        className="w-full py-4 pl-12 pr-4 bg-slate-50 border border-transparent rounded-2xl text-sm font-medium text-slate-800 focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all outline-none"
       />
     </div>
   </div>

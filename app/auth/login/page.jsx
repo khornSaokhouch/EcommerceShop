@@ -68,7 +68,7 @@ export default function LoginPage() {
                 </span>
               </Link>
             </div>
-            <p className="text-slate-400 text-[9px] uppercase tracking-[0.3em]">
+            <p className="text-slate-400 text-[11px] font-medium uppercase tracking-[0.2em]">
                 Secure Terminal Authorization
             </p>
           </div>
@@ -76,7 +76,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email / Phone Input */}
             <div className="space-y-1.5">
-              <label className="text-[10px] text-slate-400 uppercase tracking-widest ml-1">Email Or Phone Number</label>
+              <label className="text-[11px] text-slate-400 font-medium uppercase tracking-widest ml-1">Email Or Phone Number</label>
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors w-4 h-4" />
                 <input 
@@ -84,7 +84,7 @@ export default function LoginPage() {
                   value={email} 
                   onChange={(e) => setEmail(e.target.value)} 
                   placeholder="Email or phone node" 
-                  className="w-full py-3.5 pl-11 pr-4 bg-slate-50 border border-transparent rounded-2xl text-sm text-slate-800 focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all outline-none" 
+                  className="w-full py-3.5 pl-11 pr-4 bg-slate-50 border border-transparent rounded-2xl text-[13px] font-medium text-slate-800 focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all outline-none" 
                   required 
                 />
               </div>
@@ -93,8 +93,8 @@ export default function LoginPage() {
             {/* Password Input */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center px-1">
-                <label className="text-[10px] text-slate-400 uppercase tracking-widest">Password</label>
-                <Link href="/auth/forgot-password" className="text-[9px] text-blue-600 hover:text-blue-700 uppercase tracking-widest">Reset password</Link>
+                <label className="text-[11px] text-slate-400 font-medium uppercase tracking-widest">Password</label>
+                <Link href="/auth/forgot-password" className="text-[11px] text-blue-600 font-medium hover:text-blue-700 uppercase tracking-widest">Reset password</Link>
               </div>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors w-4 h-4" />
@@ -103,7 +103,7 @@ export default function LoginPage() {
                   value={password} 
                   onChange={(e) => setPassword(e.target.value)} 
                   placeholder="••••••••" 
-                  className="w-full py-3.5 pl-11 pr-11 bg-slate-50 border border-transparent rounded-2xl text-sm text-slate-800 focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all outline-none" 
+                  className="w-full py-3.5 pl-11 pr-11 bg-slate-50 border border-transparent rounded-2xl text-[13px] font-medium text-slate-800 focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 transition-all outline-none" 
                   required 
                 />
                 <button 
@@ -134,7 +134,7 @@ export default function LoginPage() {
             <button 
               type="submit" 
               disabled={loading} 
-              className="group relative w-full h-14 bg-slate-900 text-white rounded-2xl text-[10px] uppercase tracking-[0.25em] overflow-hidden transition-all active:scale-[0.97] shadow-xl"
+              className="group relative w-full h-14 bg-slate-900 text-white rounded-2xl text-[13px] font-medium uppercase tracking-[0.2em] overflow-hidden transition-all active:scale-[0.97] shadow-xl"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <div className="relative z-10 flex items-center justify-center gap-3">
@@ -170,7 +170,7 @@ export default function LoginPage() {
 
           {/* Registration */}
           <div className="mt-8 text-center">
-            <p className="text-[10px] text-slate-400">
+            <p className="text-[13px] font-medium text-slate-400">
               New node?{' '}
               <Link href="/auth/register" className="text-blue-600 hover:text-blue-700 uppercase tracking-widest transition-colors ml-1">
                 Register 

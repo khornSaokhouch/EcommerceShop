@@ -69,16 +69,16 @@ export default function EventModal({ isOpen, onClose, event, onSave }) {
                    </label>
                 </div>
                 <div>
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Visual node</p>
-                   <p className="text-[11px] font-medium text-slate-400">Initialize event registry with <br/> a high-res technical identifier.</p>
+                   <p className="text-[13px] font-medium text-slate-500 uppercase tracking-widest mb-1">Visual node</p>
+                   <p className="text-[13px] font-medium text-slate-400">Initialize event registry with <br/> a high-res technical identifier.</p>
                 </div>
             </div>
 
             <StyledInput label="Node Designation" name="name" value={formData.name} onChange={handleChange} placeholder="e.g. SUMMER_SALE_2025" required />
             
             <div className="space-y-2">
-               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Logic Description</label>
-               <textarea name="description" rows="2" value={formData.description} onChange={handleChange} className="w-full bg-slate-50 border-none rounded-2xl py-4 px-5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all outline-none resize-none" />
+               <label className="text-[13px] font-medium text-slate-500 uppercase tracking-widest ml-1">Logic Description</label>
+               <textarea name="description" rows="2" value={formData.description} onChange={handleChange} className="w-full bg-slate-50 border-none rounded-2xl py-4 px-5 text-[13px] font-medium text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all outline-none resize-none" />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -87,8 +87,8 @@ export default function EventModal({ isOpen, onClose, event, onSave }) {
             </div>
 
             <div className="grid grid-cols-2 gap-4 pt-4">
-               <button type="button" onClick={onClose} className="py-4 bg-slate-50 text-slate-400 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-slate-100">Abort</button>
-               <button type="submit" className="py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl hover:bg-blue-600 transition-all flex items-center justify-center gap-2">
+               <button type="button" onClick={onClose} className="py-4 bg-slate-50 text-slate-400 rounded-2xl text-[13px] font-bold uppercase tracking-widest hover:bg-slate-100">Abort</button>
+               <button type="submit" className="py-4 bg-slate-900 text-white rounded-2xl text-[13px] font-bold uppercase tracking-widest shadow-xl hover:bg-blue-600 transition-all flex items-center justify-center gap-2">
                   <CheckCircle2 size={16}/> {event ? "Update node" : "Execute Registry"}
                </button>
             </div>
@@ -101,7 +101,7 @@ export default function EventModal({ isOpen, onClose, event, onSave }) {
 
 const StyledInput = ({ label, ...props }) => (
     <div className="space-y-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
-        <input {...props} className="w-full bg-slate-50 border-none rounded-2xl py-4 px-5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all outline-none" />
+        <label className="text-[13px] font-medium text-slate-500 uppercase tracking-widest ml-1">{label}</label>
+        <input {...props} className="w-full bg-slate-50 border-none rounded-2xl py-4 px-5 text-[13px] font-medium text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all outline-none" />
     </div>
 );

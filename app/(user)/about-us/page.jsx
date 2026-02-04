@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function AboutUsPage() {
   return (
-    <main className="bg-slate-50">
+    <main >
       <AboutUsClient />
     </main>
   );

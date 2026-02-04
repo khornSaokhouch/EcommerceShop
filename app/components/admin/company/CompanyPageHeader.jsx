@@ -4,8 +4,8 @@ export function CompanyPageHeader({ search, onSearchChange }) {
   return (
     <div className="px-8 py-8 border-b border-slate-50 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
       <div>
-        <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Partner Registry</h2>
-        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Verified Hardware Manufacturers & Distributors</p>
+        <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Company Registry</h2>
+        <p className="text-[13px] font-medium text-slate-500 uppercase tracking-[0.2em] mt-1">Verified Hardware Manufacturers & Distributors</p>
       </div>
 
       <div className="relative w-full lg:w-96 group">
@@ -15,7 +15,7 @@ export function CompanyPageHeader({ search, onSearchChange }) {
           placeholder="Search Partner Node..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-11 pr-4 text-sm font-bold text-slate-800 focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all outline-none"
+          className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-11 pr-4 text-[13px] font-medium text-slate-500 focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all outline-none"
         />
       </div>
     </div>

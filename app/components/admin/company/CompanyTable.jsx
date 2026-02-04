@@ -8,17 +8,17 @@ export function CompanyTable({ companies, startIndex, onEdit, onDelete }) {
       <table className="w-full text-left border-collapse">
         <thead className="bg-slate-50/50">
           <tr>
-            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest"># ID</th>
-            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Partner Node</th>
-            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocol</th>
-            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Registered</th>
-            <th className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+            <th className="px-8 py-5 text-[13px] font-medium text-slate-500 uppercase tracking-widest"># ID</th>
+            <th className="px-8 py-5 text-[13px] font-medium text-slate-500 uppercase tracking-widest">USER NAME & EMAIL</th>
+            <th className="px-8 py-5 text-[13px] font-medium text-slate-500 uppercase tracking-widest">COMPANY ROLE</th>
+            <th className="px-8 py-5 text-[13px] font-medium text-slate-500 uppercase tracking-widest">REGISTERED</th>
+            <th className="px-8 py-5 text-right text-[13px] font-medium text-slate-500 uppercase tracking-widest">ACTIONS</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-50">
           {companies.map((company, index) => (
             <tr key={company.id} className="hover:bg-slate-50/30 transition-colors group">
-              <td className="px-8 py-5 text-xs font-black text-slate-300">
+              <td className="px-8 py-5 text-[13px] font-medium text-slate-300">
                 {String(startIndex + index + 1).padStart(2, '0')}
               </td>
               <td className="px-8 py-5">
@@ -31,10 +31,10 @@ export function CompanyTable({ companies, startIndex, onEdit, onDelete }) {
                     </div>
                   </div>
                   <div>
-                    <p className="text-[13px] font-black text-slate-900 uppercase tracking-tight">{company.name}</p>
-                    <div className="flex items-center gap-1.5 text-slate-400">
+                    <p className="text-[13px] font-bold text-slate-900 uppercase tracking-tight">{company.name}</p>
+                    <div className="flex items-center gap-1.5 text-slate-500">
                         <Mail size={12} />
-                        <p className="text-[10px] font-bold tracking-widest uppercase">{company.email}</p>
+                        <p className="text-[11px] font-medium tracking-widest uppercase">{company.email}</p>
                     </div>
                   </div>
                 </div>
@@ -43,7 +43,7 @@ export function CompanyTable({ companies, startIndex, onEdit, onDelete }) {
               <td className="px-8 py-5">
                  <div className="flex items-center gap-2 text-slate-500">
                     <Calendar size={13} className="text-slate-300" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">{new Date(company.created_at).toLocaleDateString()}</span>
+                    <span className="text-[11px] font-medium uppercase tracking-widest">{new Date(company.created_at).toLocaleDateString()}</span>
                  </div>
               </td>
               <td className="px-8 py-5 text-right">
